@@ -113,9 +113,15 @@ if($databaseType == "DB")
 
 }
 else
-{
-	executeFromFile($classGrepSearch);
-}
+	if($databaseType == "DB")
+	{
+		executeFromFile($classGrepSearch);
+	}
+	else
+		if($databaseType == "SAMPLE")
+		{
+			executeFromSample($classGrepSearch);
+		}
 
 
 //calulate the time (in seconds) to execute this script
@@ -192,6 +198,18 @@ for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
 }
 echo $template['searchResult']['Chapter']['EndHTML'];
 echo $template['searchResult']['Book']['EndHTML'];
+
+}
+
+function executeFromSample($classGrepSearch)
+{
+	global $limit,$scan_dir,$start_span,$end_span,$bookset,
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks;
+	$classGrepSearch->createSearchArray($searchString);
+echo "<b><a href='simplesearch.php'>Search Again</a></b>";
+echo "<HR> The Search Keyword '<font color='red'><b>$searchWithLinks</font></b>' was found in following <font color='Green' ><b> $fileCounter  </b> </font>file(s): <BR>";
+	$htmllines = createLinesFromSample($classGrepSearch);
+	echo "<BR>".$htmllines;
 
 }
 ?>
