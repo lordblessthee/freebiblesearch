@@ -298,6 +298,41 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 	  return $htmlLines;
 }
 
+function createLinesFromSample($classGrepSearch)
+{
+	global $limit,$start_span,$end_span,$bookset;
+	global $searchStringStartTag,$searchStringEndTag;
+	$classGrepSearch->setGlobalCount(0);
+	$Books=getBooks();
+	$htmlLines="";
+	$newLine ="";
+	$chapterNo="";
+	$bookID="";
+	$kjvdb=fopen("samplekjv.csv","r");
+	while($row=fgetcsv ($kjvdb, 8000, ","))
+	{
+		$verseNo=$row[2];
+				$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[2])),$template['searchResult']['Verse']['SearchKeyStartTag'],
+				$template['searchResult']['Verse']['SearchKeyEndTag']);
+				$newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
+		  		/**$newLine ="v$row[VERSENO] ".**/
+			    /** $newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";").	$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT])),$template['searchResult']['Verse']['SearchKeyStartTag'],
+				$template['searchResult']['Verse']['SearchKeyEndTag'] )."<br>";**/
+
+			if(($chapterNo!=$row[1])||($bookID!=$row[0]))
+			{
+				$chapterNo = $row[1];
+				$bookID = $row[0];
+				$bookName=$Books["All"][$bookID];
+				//$newLine = "<BR><b><font color='green'>".$Books["All"][$bookID]." //".$chapterNo."</font></b><br>".$newLine;
+				$newLine .=eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";")."<br>";
+			}
+			$htmlLines= $htmlLines.$newLine; 
+	 }
+	 
+	  return $htmlLines;
+}
+
 function createAllinChapterSQL($classGrepSearch,$varArray)
 {
 		$limit=$varArray['limit'];
