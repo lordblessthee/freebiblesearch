@@ -4,6 +4,7 @@ if(isset($_GET['preview']))
 {
     $preview =true;
 	$installprefix="sample.";
+	require_once('previewsampledata.php');
 }
 else
 {
@@ -48,11 +49,19 @@ Match whole words only
  <h3>Select version(s)</h3>
 
 <?php
-	require_once('data/config.inc.php');
+	require_once('data/'.$installprefix.'config.inc.php');
 	//$biblesArray = file("Bibles.txt");
 	echo "<select name=\"bibleVersion\" >";
 	//foreach($biblesArray as $line)
-	foreach($BibleVersion as $line)
+	if($preview)
+	{
+		$BibleVersionPresent = $sampleBibleVersion;
+	}
+	else
+	{
+		$BibleVersionPresent = $BibleVersion;
+	}
+	foreach($BibleVersionPresent as $line)
 	{
 		//$tempResult = explode(",",$line);
 		echo "<option value=\"".$line["shortname"]."\"";

@@ -27,7 +27,7 @@ function writeHeaderFooterFile($installprefix)
        //echo "in  writeHeaderFooterFile"."<br>";
         
 	$defaultHeader=file_get_contents("template/default.header.inc.php");
-	file_put_contents("data/header.inc.php",$defaultHeader);
+	file_put_contents("data/".$installprefix."header.inc.php",$defaultHeader);
 	$defaultFooter=file_get_contents("template/default.footer.inc.php");
 	file_put_contents("data/".$installprefix."footer.inc.php",$defaultFooter);
 }
@@ -43,7 +43,7 @@ function writeTemplateFile($templateName,$installprefix)
 		$handler = opendir("data/".$installprefix."images");
 		while(!(($images = readdir($handler))===false))
 		{
-			if($images!="."&&$images!="..")
+			if($images!="."&&$images!=".."&&!is_dir("data/".$installprefix."images/".$images))
 			{
 				unlink("data/".$installprefix."images/".$images);
 			}
@@ -52,7 +52,7 @@ function writeTemplateFile($templateName,$installprefix)
 		$handler = opendir("template/".$templateName."/images");
 		while(!(($images = readdir($handler))===false))
 		{
-			if($images!="."&&$images!="..")
+			if($images!="."&&$images!=".."&&!is_dir("data/".$installprefix."images/".$images))
 			{
 				copy("./template/".$templateName."/images/".$images, "./data/".$installprefix."images/".$images); 
 
