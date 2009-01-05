@@ -272,7 +272,7 @@ echo "&nbsp;&nbsp;Database Table Prefix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 //echo "<input type=\"radio\" name=\"selectTemplate\" value=\"FlatFiles\" checked = \"checked\">Flat Files<br>";
 //echo '<select name="select_template">';
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";**/
-echo "<tr><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></tr><br>";
+echo "<tr><td><font color=green><b>Preview Template</b>(Click on the screenshot to see a preview )</font><br></td></tr><br>";
 	$template_directory = "./template";
 	$template = opendir($template_directory) or die("fail to open");
 	$count=0;

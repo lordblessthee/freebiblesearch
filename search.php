@@ -23,7 +23,7 @@ echo $template['searchForm1']['StartHTML'];
     
 <h3>Enter word(s) or phrase(s)</h3>
 
-Example "Jesus love"<br />
+Example "Eternal Life"<br />
  <input type="text" name="search" value="" size="35" /><br /> 
  <h3>Select version(s)</h3>
 
