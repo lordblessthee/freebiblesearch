@@ -1,14 +1,24 @@
 <?php
 $title="Advanced Search";
-require_once("data/template.inc.php");
-require_once("data/header.inc.php");
+if(isset($_GET['preview'])) 
+{
+    $preview =true;
+	$installprefix="sample.";
+}
+else
+{
+	$preview =false;
+	$installprefix="";
+}
+require_once('data/'.$installprefix.'template.inc.php');
+require_once('data/'.$installprefix.'header.inc.php');
 echo $template['searchForm2']['StartHTML'];
 ?>
 
-<h1>Keyword&nbsp;Search</h1>
+<!--<h1>Keyword&nbsp;Search</h1>
 
  
-     <strong>Keyword&nbsp;Search</strong> | 
+     <strong>Keyword&nbsp;Search</strong> |--> 
    
    
     
@@ -306,6 +316,6 @@ href="/preferences/deuterocanon.php?previous_searchtype=keyword" title="include"
 
 <?php 
 echo $template['searchForm2']['EndHTML'];
-require_once("data/footer.inc.php");
+require_once('data/'.$installprefix.'footer.inc.php');
 ?>
 

@@ -1,15 +1,19 @@
 <?php
-$title="Simple Search";
-require_once("data/template.inc.php");
-require_once("data/header.inc.php");
+$title="Bible Search";
+if(isset($_GET['preview'])) 
+{
+    $preview =true;
+	$installprefix="sample.";
+}
+else
+{
+	$preview =false;
+	$installprefix="";
+}
+require_once('data/'.$installprefix.'template.inc.php');
+require_once('data/'.$installprefix.'header.inc.php');
 echo $template['searchForm1']['StartHTML'];
 ?>
-<h1>Simple&nbsp;Search</h1>
-
- 
-     <strong>Simple&nbsp;Search</strong> | 
-	 <a href="advancedsearch.php">Advanced Search</a> | <a href="readbible.php">Read the Bible</a>
-   
    
     
  <form method="post" action="result.php" name="keysearch">
@@ -48,6 +52,6 @@ Example "Jesus love"<br />
  
 <?php 
 echo $template['searchForm1']['EndHTML'];
-require_once("data/footer.inc.php");
+require_once('data/'.$installprefix.'footer.inc.php');
 ?>
 
