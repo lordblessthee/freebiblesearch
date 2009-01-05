@@ -4,6 +4,7 @@ if(isset($_GET['preview']))
 {
     $preview =true;
 	$installprefix="sample.";
+	require_once('previewsampledata.php');
 }
 else
 {
@@ -12,6 +13,7 @@ else
 }
 require_once('data/'.$installprefix.'template.inc.php');
 require_once('data/'.$installprefix.'header.inc.php');
+require_once('data/'.$installprefix.'config.inc.php');
 echo $template['searchForm1']['StartHTML'];
 ?>
    
@@ -26,17 +28,24 @@ Example "Jesus love"<br />
  <h3>Select version(s)</h3>
 
 <?php 
-	$biblesArray = file("Bibles.txt");
+	//$biblesArray = file("Bibles.txt");
 	echo "<select name=\"bibleVersion\" >";
-	foreach($biblesArray as $line)
+	if($preview)
 	{
-		$tempResult = explode(",",$line);
-		echo "<option value=\"$tempResult[0]\"";
-		if($tempResult[0]=="kjv")
+		$BibleVersionPresent = $sampleBibleVersion;
+	}
+	else
+	{
+		$BibleVersionPresent = $BibleVersion;
+	}
+	foreach($BibleVersionPresent as $line)
+	{
+		echo "<option value=\"".$line["shortname"]."\"";
+		if($line["shortname"]=="kjv")
 		{
 			echo "selected=\"selected\"";
 		}
-		echo ">$tempResult[1]</option>";
+		echo ">".$line["name"]."</option>";
 			
 	}
 	echo "</select>";
