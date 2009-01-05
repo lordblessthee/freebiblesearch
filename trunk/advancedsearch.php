@@ -28,7 +28,7 @@ echo $template['searchForm2']['StartHTML'];
     
 <h3>Enter word(s) or phrase(s)</h3>
 
-Example "Jesus love"<br />
+Example "Eternal Life"<br />
  <input type="text" name="search" value="" size="35" /><br />
  <select name="searchtype" >
    
@@ -77,37 +77,8 @@ Match whole words only
  <h3>Options:</h3>
 
 
- Display Options
- <br>
- <select name="displayas" >
-  
-<option value="short">References only</option>
-<option value="long" selected="selected" >Verses + references</option>
-    
- </select>
  </span><br />
 
- Display 
- <select name="resultspp" >
-    
-<option value="10">10</option>
-<option value="25" selected="selected" >25</option>
-<option value="50">50</option>
-<option value="100">100</option>
-
-<option value="250">500</option>
-    
- </select>
-     results per page <br />
-     Sort by <br>
- <select name="sort" >
-
-    
-
-<option value="bookorder" selected="selected" >Book order</option>
-<option value="relevance">Relevance</option>
-    
- </select>
  <br>
  <input type="radio" name="limit" value="none" id="limit-none"  checked="checked" >
  Search entire Bible
@@ -318,10 +289,6 @@ Search from
  
  </form>
  
- <ul style="margin-top: 20px; padding-left:0;" class="txt-sm">
- <li>Bibles containing Deuterocanonical books have been excluded (<a 
-
-href="/preferences/deuterocanon.php?previous_searchtype=keyword" title="include">include</a>)</li></ul></td></tr></table>
 
 <?php 
 echo $template['searchForm2']['EndHTML'];

@@ -4,7 +4,7 @@ $template['HeaderText']="<STYLE fprolloverstyle>A:hover {
 }
 </STYLE>";
 $template['HeaderBodyText']="text=#020280 vLink=#574d95 aLink=#ff80c0 link=#6bc552 bgProperties=fixed 
-bgColor=#ffffff background=\"data/images/bak.gif\"";
+bgColor=#ffffff background=\"data/".$installprefix."images/bak.gif\"";
 //$template['readBible']['ShowBooks']['ShowChapterLinks']=true;
 $template['readBible']['ShowBooks']['StartHTML']="
 <P>&nbsp;</P><B>

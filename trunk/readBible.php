@@ -204,7 +204,7 @@ if(isset($_GET['book']))
 			foreach($verseTextArray as $verseTextArr)
 			{
 				$verseNo=$verseTextArr[0];
-				$verseText=$verseTextArr[1];
+				$verseText=stripslashes($verseTextArr[1]);
 				$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
 			}
 		}

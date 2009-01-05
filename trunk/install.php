@@ -156,7 +156,6 @@ if(isset($_POST['InstallSubmit']))
 
 			}
 		}
-		fclose($biblesList);
 		if($noerror)
 		{	
 			writeConfigFile($configVars,"");
