@@ -2,17 +2,16 @@
 
 <html>
 <head>
-	<title>Biblesearch Installation</title>
+	<title>Preview Template(s)</title>
 	<!--<?=$head?>-->
 </head>
 
 <body>
-<h2>Biblesearch Installer</h2>
+<h2>Preview Template(s)</h2>
 <table border=1>
 
 <?php
-require_once('installfunctions.php');
-if(isset($_POST['InstallSubmit']))
+/**if(isset($_POST['InstallSubmit']))
 {
 	$noerror=true;
 	$message="";
@@ -272,12 +271,12 @@ echo "&nbsp;&nbsp;Database Table Prefix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 //Code to get template folder names into a select box
 //echo "<input type=\"radio\" name=\"selectTemplate\" value=\"FlatFiles\" checked = \"checked\">Flat Files<br>";
 //echo '<select name="select_template">';
-echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
-echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></td></tr><br>";
+echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";**/
+echo "<tr><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></tr><br>";
 	$template_directory = "./template";
 	$template = opendir($template_directory) or die("fail to open");
 	$count=0;
-	echo "<tr><td>&nbsp;</td><td></td><td><div style=\"overflow:auto; height:300px; width:700px;
+	echo "<tr><td><div style=\"overflow:auto; height:300px; width:700px;
 		border: 1px solid #666;
 		background-color: #ccc;
 		padding: 8px;\">";
@@ -288,20 +287,13 @@ echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>
      	if ($design =='.'){
      	}elseif ($design =='..'){
      	}else{
-			if($count==0)
-			{
-				$checked="checked = \"checked\"";
-			}
-			else
-			{
-				$checked="";
-			}
+
 			$count++;
 			if($count%2!=0)
 			{
-				echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr>";
+				echo "<tr></tr><tr>";
 			}
-			echo "<td><center>$design<br><a href=\"preview.php?template=$design\" target=new ><img src =\"template/$design/screenshot.jpg\"></a><br><input type=\"radio\" name=\"selectTemplate\" value=\"$design\" $checked ></center>";
+			echo "<td><center>$design<br><a href=\"preview.php?template=$design\" target=new ><img src =\"template/$design/screenshot.jpg\"></a><br><!--<input type=\"radio\" name=\"selectTemplate\" value=\"$design\" $checked >--></center>";
 			if($count%2==0)
 			{
 				echo "</td></tr>";
@@ -318,10 +310,10 @@ echo "</table></div></td></tr>";
 	closedir($template);
 	//End of code to get template folder names into a select box
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
-echo "<tr><td></td><td></td><td><input type=\"submit\" name=\"InstallSubmit\" value=\"Submit\"> \n";
+/**echo "<tr><td></td><td></td><td><input type=\"submit\" name=\"InstallSubmit\" value=\"Submit\"> \n";
 echo "<input type=\"submit\" name=\"InstallCancel\" value=\"Cancel\"> \n";
 echo "<input type=\"reset\" name=\"Reset\" value=\"Reset\"></td></tr> \n";
-echo "</form> \n";
+echo "</form> \n";**/
 echo "</table>\n";
 
 echo "</body>\n";
@@ -329,268 +321,5 @@ echo "</html>\n";
 
 
 
-function installFlatfile($biblename,$writeDir)
-{
-	global $message;
-	$noerror=true;
-	$readDir="bibles/";
-	//$writeDir="bibledb/";
-	if(!is_dir($writeDir))
-	{
-		mkdir($writeDir, 0777);
-    }
-	$bibleDir=$writeDir.$biblename."db"."/";
-	$noerror = mkdir($bibleDir, 0777);
-	if(!$noerror)
-	{
-		$message="<font color=red>Error creating $bibleDir directory please empty<br>
-		          the contents of $writeDir</font>";
-		return $noerror;
-	}
-	$row = 1;
-	$handle = fopen ($readDir.$biblename.'.csv','r');
-	$book_prev="";
-	$chapter_prev="";
-	$filecount=0;
-	while ($data = fgetcsv ($handle, 4000, ',')) 
-	{
-		if ($row <3)
-		{
-			$row++;
-			continue;
-		}
-		$book=$data[1];
-		$chapter=$data[2];
-		if($book != $book_prev)
-		{
-			$noerror=mkdir($bibleDir.$book, 0777);
-			if(!$noerror)
-			{
-				$message="<font color=red>Error creating $bibleDir.$book directory please empty<br>
-		          the contents of $writeDir</font>";
-				return $noerror;
-			}
-			if($filecount!=0)
-			{
-				fclose($fileresult);
-			}
-			$fileresult=fopen($bibleDir.$book.'/'.$book.$chapter.'.txt', 'w');
-			$filecount++;
-		}else
-		if($chapter != $chapter_prev)
-		{
-			if($filecount!=0)
-			{
-				fclose($fileresult);
-			}
-			$fileresult=fopen($bibleDir.$book.'/'.$book.$chapter.'.txt', 'w');
-			$filecount++;
-		}
-		$num = count ($data);
-		/**print ' '.$num.'fields in line '.$row. '\n';**/
-		$row++;
-		//$filedata=$data[1].' '.$data[2].':'.$data[3].' '.$data[4];
-		$filedata=$data[3].' '.$data[4];
-		fwrite($fileresult,"$filedata \n");
-		$book_prev=$book;
-		$chapter_prev=$chapter;
-	}
-	//fclose ($handle);
-	return $noerror;
-}
 
-function installDB($databaseInfo,$bibleVersion)
-{
-	global $message;
-	$noerror=true;
-	$databasehost = $databaseInfo['databasehost'];
-	$databasename = $databaseInfo['databasename'];
-	$databasetableprefix= $databaseInfo['tableprefix'];
-	$databasetable = $databaseInfo['tableprefix'].$bibleVersion;
-	$databaseusername = $databaseInfo['databaseusername'];
-	$databasepassword = $databaseInfo['databasepassword'] ;
-
-	$csvfile = "bibles/".$bibleVersion.".csv";
-	//$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
-	$con = mysql_connect($databasehost, $databaseusername, $databasepassword);
-	if (!$con) {
-		$message = "<font color=red>"."Could not connect: ".mysql_error()."</font>";
-		$noerror=false;
-		return $noerror;
-	}
-	echo 'Connected successfully';
-	$noerror = mysql_select_db($databasename,$con);
-	if (!$noerror) 
-	{
-		$message .="<font color = red>";
-		
-		$message .="Can\'t use $databasename: " . mysql_error();
-		$message .="</font>";
-		return $noerror;
-	}
-    $sql = "DROP TABLE IF EXISTS ".$databasetable." ;";
-    $result=mysql_query($sql);
-    if(!$result)
-    {
-		$message .="<font color = red>";
-		$message .="Invalid query1: " . mysql_error();
-		$message .="</font>";
-		$noerror=false;
-		return $noerror;
-
-		
-	}
-
-	$sql = "CREATE TABLE ".$databasetable."
-	(
-		BOOKID int,
-		CHAPTERNO int,
-		VERSENO  int,
-		VERSETEXT longtext
-		);";
-	$result=mysql_query($sql);
-	if(!$result)
-	{
-		$message .="<font color = red>";
-		$message .="Invalid query2: " . mysql_error();
-		$message .="</font>";
-		$noerror=false;
-		return $noerror;
-	}
-	else
-	{
-		echo "$databasetable table created";
-	}
-	if(!file_exists($csvfile)) 
-	{
-		$message .="<font color = red>";
-		$message .=" $bibleVersion Bible File not found. Make sure you specified the correct path.\n";
-		$message .="</font>";
-		$noerror=false;
-		return $noerror;
-		
-	}
-	else
-	{
-		echo "$bibleVersion Bible file found";
-
-		$file = fopen($csvfile,"r");
-
-		if(!$file) 
-		{
-			$message .="<font color = red>";
-			$message .="Error opening $csvfile data file.\n";
-			$message .="</font>";
-			$noerror=false;
-			return $noerror;
-
-		}
-
-		$size = filesize($csvfile);
-
-		if(!$size) 
-		{
-			$message .="<font color = red>";
-			$message .="$csvfile is empty.\n";
-			$message .="</font>";
-			$noerror=false;
-			return $noerror;
-		}
-
-
-		$lines = 0;
-		$queries = "";
-		$linearray = array();
-        while ($data = fgetcsv ($file, 4000, ','))
-        {
-			$lines++;
-            if($lines <=2)
-			{
-                  continue;
-			}
-			$data[4]=addslashes($data[4]);
-			$linemysql="$data[0],$data[2],$data[3],'$data[4]'";
-			$query = "insert into $databasetable values($linemysql)";
-			$result=mysql_query($query);
-			if(!$result)
-			{
-				$message .="<font color = red>";
-				$message .="Invalid query3: " . mysql_error();
-				$message .="</font>";
-				$noerror=false;
-				return $noerror;
-			}
-                
-		
-
-        } 
-        @mysql_close($con);
- 		echo "Found a total of $lines records in this $bibleVersion csv file.\n";
-		return $noerror;
-	}
-}
-
-/***function writeConfigFile($configVars)
-{
-		echo "in writeConfigFile"."<br>";
-        
-		$defaultConfig=file_get_contents("template/default.config.inc.php");
-        $configStr="";
-        for($i=0;$i<count($configVars['varName']);$i++)
-        {
-			if(isset($configVars['Comments'][$i]))
-			{
-				foreach($configVars['Comments'][$i] as $comments)
-				{
-					$configStr .="// ".$comments."\n";
-				}
-
-			}
-			$configStr .="\$".$configVars['varName'][$i]."=".$configVars['value'][$i].";"."\n";
-        }
-        $defaultConfigModified=str_replace("<%main%>",$configStr,$defaultConfig);
-        file_put_contents("data/config.inc.php",$defaultConfigModified);
-
-}
-
-function writeHeaderFooterFile()
-{
-       echo "in  writeHeaderFooterFile"."<br>";
-        
-	$defaultHeader=file_get_contents("template/default.header.inc.php");
-	file_put_contents("data/header.inc.php",$defaultHeader);
-	$defaultFooter=file_get_contents("template/default.footer.inc.php");
-	file_put_contents("data/footer.inc.php",$defaultFooter);
-}
-
-function writeTemplateFile($templateName)
-{
-       echo "in  writeTemplateFile"."<br>";
-        
-	$defaultTemplate=file_get_contents("template/".$templateName."/"."default.template.inc.php");
-	file_put_contents("data/template.inc.php",$defaultTemplate);
-	if(is_dir("template/".$templateName."/images/"))
-	{
-		$handler = opendir("data/images");
-		while(!(($images = readdir($handler))===false))
-		{
-			if($images!="."&&$images!="..")
-			{
-				unlink("data/images/".$images);
-			}
-		}
-		closedir($handler);
-		$handler = opendir("template/".$templateName."/images");
-		while(!(($images = readdir($handler))===false))
-		{
-			if($images!="."&&$images!="..")
-			{
-				copy("./template/".$templateName."/images/".$images, "./data/images/".$images); 
-
-			}
-
-		}
-		closedir($handler);
-	}
-}**/
 ?>

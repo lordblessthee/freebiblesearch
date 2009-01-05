@@ -7,10 +7,21 @@
 
 // time when this script starts 
 $startTime = time();
-require_once('data/template.inc.php');
-require_once('data/config.inc.php');
+if(isset($_GET['preview'])) 
+{
+    $preview =true;
+	$installprefix="sample.";
+	require_once('previewsampledata.php');
+}
+else
+{
+	$preview =false;
+	$installprefix="";
+}
+require_once('data/'.$installprefix.'template.inc.php');
+require_once('data/'.$installprefix.'config.inc.php');
 $title="Search Result";
-require_once("data/header.inc.php");
+require_once('data/'.$installprefix.'header.inc.php');
 echo $template['searchResult']['StartHTML'];
 // create object of the class
 require_once('ClassGrepSearch.inc.php');
@@ -99,29 +110,28 @@ $regex ='/([a-zA-Z]+)/';
 $replace ="<a href=\"thesaurus.php?word=$1&version=$version\">$1</a>";
 $searchWithLinks = preg_replace( $regex, $replace, $searchString);
 
-
-if($databaseType == "DB")
+if($preview == true)
 {
-	$databaseInfo['databasehost'] = $dbHost;
-	$databaseInfo['databasename'] = $dbName;
-	$databaseInfo['tableprefix'] = $dbTablePrefix;
-	$databaseInfo['databaseusername'] =$dbUser;
-	$databaseInfo['databasepassword'] = $dbPassword;
-	$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
-	executeFromDB($classGrepSearch,$databaseInfo);
-	//exit;
-
+	executeFromSample($classGrepSearch);
 }
 else
 	if($databaseType == "DB")
 	{
-		executeFromFile($classGrepSearch);
+		$databaseInfo['databasehost'] = $dbHost;
+		$databaseInfo['databasename'] = $dbName;
+		$databaseInfo['tableprefix'] = $dbTablePrefix;
+		$databaseInfo['databaseusername'] =$dbUser;
+		$databaseInfo['databasepassword'] = $dbPassword;
+		$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
+		executeFromDB($classGrepSearch,$databaseInfo);
+
 	}
 	else
-		if($databaseType == "SAMPLE")
+		if($databaseType == "FILE")
 		{
-			executeFromSample($classGrepSearch);
+			executeFromFile($classGrepSearch);
 		}
+
 
 
 //calulate the time (in seconds) to execute this script
@@ -134,7 +144,7 @@ $timeTaken = $classGrepSearch->convertSecToMins($totalTime);
 /**echo "<BR><BR><hr><center><h4 >Info: Searched in <font color='blue'>".sizeof($classGrepSearch->getDirFile())."</font> Files in <font color='blue'>".sizeof($classGrepSearch->getDirArray())."</font> directories. </h4><hr>Total time taken: <font color='blue'> $timeTaken </font> </center><HR><center></b> Coded by:  Rochak Chauhan<HR>"; **/
 echo "<center><hr>Total time taken: <font color='blue'> $timeTaken </font></hr></center>";
 echo $template['searchResult']['EndHTML'];
-require_once("data/footer.inc.php");
+require_once('data/'.$installprefix.'footer.inc.php');
 
 
 function executeFromDB($classGrepSearch,$databaseInfo)
@@ -142,8 +152,7 @@ function executeFromDB($classGrepSearch,$databaseInfo)
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks;
 	$classGrepSearch->createSearchArray($searchString);
-echo "<b><a href='simplesearch.php'>Search Again</a></b>";
-echo "<HR> The Search Keyword '<font color='red'><b>$searchWithLinks</font></b>' was found in following <font color='Green' ><b> $fileCounter  </b> </font>file(s): <BR>";
+echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
 	$htmllines = createLinesFromDB($databaseInfo,$classGrepSearch);
 	echo "<BR>".$htmllines;
 
@@ -165,36 +174,98 @@ else
 
 
 // print information
-echo "<b><a href='simplesearch.php'>Search Again</a></b>";
-echo "<HR> The Search Keyword '<font color='red'><b>$searchWithLinks</font></b>' was found in following <font color='Green' ><b> $fileCounter  </b> </font>file(s): <BR>";
+//echo "<b><a href='simplesearch.php'>Search Again</a></b>";
+echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
 $arrayOfFilenames = $classGrepSearch->getarrayOfFilenames();
 $bookName="";
 $previousBookName="";
-echo $template['searchResult']['Book']['StartHTML'];
-echo $template['searchResult']['Chapter']['StartHTML'];
+$prevChapterNo=0;
+$bookFirsttime=true;
+//echo $template['searchResult']['Book']['StartHTML'];
+//echo $template['searchResult']['Chapter']['StartHTML'];
 for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
     $fileName = str_replace($_SERVER['DOCUMENT_ROOT'],"",$arrayOfFilenames[$i]);
     $linkName = str_replace($_SERVER['DOCUMENT_ROOT'],"Z:",$arrayOfFilenames[$i]);
-	$chapterNo = (int)substr($fileName,-7,3);
+	$ChapterNo = (int)substr($fileName,-7,3);
 	$bookNameStart=strlen($fileName)-strrpos($fileName,"/");
 	$bookName = substr($fileName,-$bookNameStart+1,$bookNameStart-8);
-	if(i!=0 && $previousBookName!=$bookName)
+	//if(i!=0 && $previousBookName!=$bookName)
+	//{
+	/**if($previousBookName!=$bookName)
 	{
-		echo $template['searchResult']['Chapter']['EndHTML'];
-		echo $template['searchResult']['Chapter']['StartHTML'];
+		//echo $template['searchResult']['Chapter']['EndHTML'];
+		//echo $template['searchResult']['Chapter']['StartHTML'];
+		if($bookFirsttime)
+		{
+			echo $template['searchResult']['Book']['StartHTML'];
+			eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+			echo	$template['searchResult']['Chapter']['StartHTML'];
+			eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+			$bookFirsttime=false;
 
+		}
+		else
+			{
+				echo $template['searchResult']['Chapter']['EndHTML'];
+				echo $template['searchResult']['Book']['EndHTML'];
+				echo $template['searchResult']['Book']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+				echo $template['searchResult']['Chapter']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+			}
 	}
+	else
+		if($ChapterNo!=$prevChapterNo)
+		{
+			echo $template['searchResult']['Chapter']['EndHTML'];
+			echo $template['searchResult']['Chapter']['StartHTML'];
+			eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+					
+		}**/
     $classGrepSearch->setGlobalCount(0);
     //$htmllines = createLinesFromFile($scan_dir.$fileName,$searchString,$searchType,$classGrepSearch);
       $htmllines = createLinesFromFile($scan_dir.$fileName,$classGrepSearch);
 	if($htmllines !="")
 	{
-		eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+		if($previousBookName!=$bookName)
+		{
+		//echo $template['searchResult']['Chapter']['EndHTML'];
+		//echo $template['searchResult']['Chapter']['StartHTML'];
+			if($bookFirsttime)
+			{
+				echo $template['searchResult']['Book']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+				echo	$template['searchResult']['Chapter']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+				$bookFirsttime=false;
+
+			}
+			else
+			{
+				echo $template['searchResult']['Chapter']['EndHTML'];
+				echo $template['searchResult']['Book']['EndHTML'];
+				echo $template['searchResult']['Book']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+				echo $template['searchResult']['Chapter']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+			}
+		}
+		else
+			if($ChapterNo!=$prevChapterNo)
+			{
+				echo $template['searchResult']['Chapter']['EndHTML'];
+				echo $template['searchResult']['Chapter']['StartHTML'];
+				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+					
+			}
+		//eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
 		echo $template['searchResult']['Verse']['StartHTML'];
 		echo $htmllines;
 		echo $template['searchResult']['Verse']['EndHTML'];
+		$previousBookName=$bookName;
+		$prevChapterNo=$ChapterNo;
 	}
-	$previousBookName=$bookName;
+
 }
 echo $template['searchResult']['Chapter']['EndHTML'];
 echo $template['searchResult']['Book']['EndHTML'];
@@ -206,8 +277,8 @@ function executeFromSample($classGrepSearch)
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks;
 	$classGrepSearch->createSearchArray($searchString);
-echo "<b><a href='simplesearch.php'>Search Again</a></b>";
-echo "<HR> The Search Keyword '<font color='red'><b>$searchWithLinks</font></b>' was found in following <font color='Green' ><b> $fileCounter  </b> </font>file(s): <BR>";
+//echo "<b><a href='simplesearch.php'>Search Again</a></b>";
+echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
 	$htmllines = createLinesFromSample($classGrepSearch);
 	echo "<BR>".$htmllines;
 

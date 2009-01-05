@@ -1,7 +1,7 @@
 <?php
 require_once('ClassGrepSearch.inc.php');
-require_once('data/config.inc.php');
-require_once('data/template.inc.php');
+//require_once('data/config.inc.php');
+//require_once('data/template.inc.php');
 
 /**
  *
@@ -268,67 +268,149 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 		}
 		$sql=substr($sql,0,(strlen($sql)-4)).";";
 	}
-      $result=mysql_query($sql) or die(mysql_error()); 
-	  $newLine ="";
-	  $chapterNo="";
-	  $bookID="";
+	$result=mysql_query($sql) or die(mysql_error()); 
+	$htmlLines="";
+	$newLine ="";
+	$prevChapterNo=0;
+	$ChapterNo=0;
+	$BookID=0;
+	$prevBookID=0;
+	$bookFirsttime=true;
 	  while($row=mysql_fetch_array($result))
 	  {
-		        $verseNo=$row[VERSENO];
-				$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT])),$template['searchResult']['Verse']['SearchKeyStartTag'],
+
+
+
+		$newLine="";
+		$BookID=(int)$row[BOOKID];
+		$ChapterNo=(int)$row[CHAPTERNO];
+		$verseNo=(int)$row[VERSENO];	
+		$bookName=$Books["All"][$BookID];	$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT]))
+			,$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag']);
-				$newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
-		  		/**$newLine ="v$row[VERSENO] ".**/
-			    /** $newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";").	$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT])),$template['searchResult']['Verse']['SearchKeyStartTag'],
-				$template['searchResult']['Verse']['SearchKeyEndTag'] )."<br>";**/
+		$newLine .=$template['searchResult']['Verse']['StartHTML'];
+		$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
+		$newLine .=$template['searchResult']['Verse']['EndHTML'];
 
-			if(($chapterNo!=$row[CHAPTERNO])||($bookID!=$row[BOOKID]))
+			if(($BookID!=$prevBookID))
 			{
-				$chapterNo = $row[CHAPTERNO];
-				$bookID = $row[BOOKID];
-				$bookName=$Books["All"][$bookID];
-				//$newLine = "<BR><b><font color='green'>".$Books["All"][$bookID]." //".$chapterNo."</font></b><br>".$newLine;
-				$newLine .=eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";")."<br>";
+				if($bookFirsttime)
+				{
+					$newLine =$template['searchResult']['Book']['StartHTML'].
+					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
+						$template['searchResult']['Chapter']['StartHTML'].
+					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+					$bookFirsttime=false;
 
-
+				}else
+				{
+					$newLine =$template['searchResult']['Chapter']['EndHTML'].
+						$template['searchResult']['Book']['EndHTML'].
+						$template['searchResult']['Book']['StartHTML'].
+					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
+						$template['searchResult']['Chapter']['StartHTML'].
+					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+				}
 			}
-			$htmlLines= $htmlLines.$newLine; 
+			else
+				if(($ChapterNo!=$prevChapterNo))
+				{
+					$newLine =$template['searchResult']['Chapter']['EndHTML'].
+						$template['searchResult']['Chapter']['StartHTML'].
+						eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+					
+				}
+			
+			$prevBookID=$BookID;
+			$prevChapterNo=$ChapterNo;
+			$htmlLines .=$newLine; 
+ 
 	 }
-	 
+	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
+	$htmlLines .=$template['searchResult']['Book']['EndHTML'];
 	  return $htmlLines;
+
 }
 
 function createLinesFromSample($classGrepSearch)
 {
 	global $limit,$start_span,$end_span,$bookset;
-	global $searchStringStartTag,$searchStringEndTag;
+	global $searchStringStartTag,$searchStringEndTag,$template;
+	global $sampleSearch;
 	$classGrepSearch->setGlobalCount(0);
 	$Books=getBooks();
 	$htmlLines="";
 	$newLine ="";
-	$chapterNo="";
-	$bookID="";
-	$kjvdb=fopen("samplekjv.csv","r");
-	while($row=fgetcsv ($kjvdb, 8000, ","))
+	$prevChapterNo=0;
+	$ChapterNo=0;
+	$BookID=0;
+	$prevBookID=0;
+	//$kjvdb=fopen("samplekjv.csv","r");
+	$bookFirsttime=true;
+	//$tempcount=0;
+	//$tempstring="";
+	foreach($sampleSearch as $row)
 	{
-		$verseNo=$row[2];
-				$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[2])),$template['searchResult']['Verse']['SearchKeyStartTag'],
+	//while($row=fgetcsv ($kjvdb, 8000, ","))
+	//{
+		//$tempstring .="\$sampleSearch[".$tempcount."][0]=".((int)$row[0]).";\n";
+		//$tempstring .="\$sampleSearch[".$tempcount."][1]=".((int)$row[1]).";\n";
+		//$tempstring .="\$sampleSearch[".$tempcount."][2]=".((int)$row[2]).";\n";
+		//$tempstring .="\$sampleSearch[".$tempcount."][3]="."\"".addslashes($row[3])."\"".";\n";
+		//$tempcount++;
+		$newLine="";
+		$BookID=(int)$row[0];
+		$ChapterNo=(int)$row[1];
+		$verseNo=(int)$row[2];	
+		$bookName=$Books["All"][$BookID];	$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[3]))
+			,$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag']);
-				$newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
-		  		/**$newLine ="v$row[VERSENO] ".**/
-			    /** $newLine =eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";").	$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT])),$template['searchResult']['Verse']['SearchKeyStartTag'],
-				$template['searchResult']['Verse']['SearchKeyEndTag'] )."<br>";**/
+		$newLine .=$template['searchResult']['Verse']['StartHTML'];
+		$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
+		$newLine .=$template['searchResult']['Verse']['EndHTML'];
 
-			if(($chapterNo!=$row[1])||($bookID!=$row[0]))
+			if(($BookID!=$prevBookID))
 			{
-				$chapterNo = $row[1];
-				$bookID = $row[0];
-				$bookName=$Books["All"][$bookID];
-				//$newLine = "<BR><b><font color='green'>".$Books["All"][$bookID]." //".$chapterNo."</font></b><br>".$newLine;
-				$newLine .=eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";")."<br>";
+				if($bookFirsttime)
+				{
+					$newLine =$template['searchResult']['Book']['StartHTML'].
+					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
+						$template['searchResult']['Chapter']['StartHTML'].
+					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+					$bookFirsttime=false;
+
+				}else
+				{
+					$newLine =$template['searchResult']['Chapter']['EndHTML'].
+						$template['searchResult']['Book']['EndHTML'].
+						$template['searchResult']['Book']['StartHTML'].
+					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
+						$template['searchResult']['Chapter']['StartHTML'].
+					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+				}
 			}
-			$htmlLines= $htmlLines.$newLine; 
+			else
+				if(($ChapterNo!=$prevChapterNo))
+				{
+					$newLine =$template['searchResult']['Chapter']['EndHTML'].
+						$template['searchResult']['Chapter']['StartHTML'].
+						eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
+						$newLine;
+					
+				}
+			
+			$prevBookID=$BookID;
+			$prevChapterNo=$ChapterNo;
+			$htmlLines .=$newLine; 
 	 }
+	 //file_put_contents("sampletestfile3.txt",$tempstring);
+	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
+	$htmlLines .=$template['searchResult']['Book']['EndHTML'];
 	 
 	  return $htmlLines;
 }
