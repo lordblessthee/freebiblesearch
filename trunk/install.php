@@ -12,6 +12,12 @@
 
 <?php
 require_once('installfunctions.php');
+if(file_exists("data/config.inc.php"))
+{
+		echo "Cannot install probably already installed"."<br>";
+		echo "Please remove data/config.inc.php for Reinstallation"."<br>";
+		exit;
+}
 if(isset($_POST['InstallSubmit']))
 {
 	$noerror=true;
