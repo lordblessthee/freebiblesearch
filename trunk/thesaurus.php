@@ -1,14 +1,25 @@
 <?php 
-require_once('data/template.inc.php');
-require_once("data/header.inc.php");
-require_once('data/config.inc.php');
+if(isset($_GET['preview'])) 
+{
+    $preview =false;
+	$installprefix="sample.";
+	require_once('previewsampledata.php');
+}
+else
+{
+	$preview =false;
+	$installprefix="";
+}
+require_once('data/'.$installprefix.'template.inc.php');
+require_once('data/'.$installprefix.'header.inc.php');
+require_once('data/'.$installprefix.'config.inc.php');
 if(isset($_GET['word']))
 {
 	$word=$_GET['word'];
-$url="http://thesaurus.reference.com/browse/$word";
+    $url="http://wordnetweb.princeton.edu/perl/webwn?c=1&sub=Change&o2=&o0=&o7=&o5=&o1=1&o6=&o4=&o3=&i=-1&h=00&s=$word";
 }
 else
-	$url="http://thesaurus.reference.com/browse/test";
+	$url="http://wordnetweb.princeton.edu/perl/webwn?c=1&sub=Change&o2=&o0=&o7=&o5=&o1=1&o6=&o4=&o3=&i=-1&h=00&s=test";
 
 if(isset($_GET['version']))
 {
@@ -18,21 +29,34 @@ if(isset($_GET['version']))
 	$version = "kjv";
 }
 echo $template['thesaurus']['StartHTML'];
-//$txt=file_get_contents_proxy($url);
-//$txt = file_get_contents($url);
-$txt=file_get_contents("thesaurustest.txt");
-$pattern2="/<tr>([^`]*?)<\/tr>/";
-$result=preg_match_all($pattern2,$txt,$yourpost);
-foreach($yourpost[0] as $newtxt)
+if(!$preview)
 {
-	if(strpos($newtxt,"Synonyms:")!==false)
+	$txt = file_get_contents($url);
+	if($txt!==false)
 	{
-		$newtxt=strip_tags($newtxt);
-		$newtxt=html_entity_decode($newtxt);
-		$synonymsarr[]=explode(",",substr($newtxt,strpos($newtxt,"Synonyms:")+strlen("Synonyms:")));
+		$pattern2="/<li>([^`]*?)<\/li>/";
+		$result=preg_match_all($pattern2,$txt,$yourpost);
+		foreach($yourpost[0] as $newtxt)
+		{
+			if(strpos($newtxt,"S:")!==false)
+			{
+				$newtxt=strip_tags($newtxt);
+				$newtxt=html_entity_decode($newtxt);
+				$synonymsarr[]=explode(",",substr($newtxt,strpos($newtxt,")")+strlen(")")));
+			}
+		}
+	}
+	else
+	{
+		echo "<br><br><br>Could not extract thesaurus data probably not connected to internet";
+		echo "</body></html>";
+		exit;
 	}
 }
-
+else
+{
+	$synonymsarr = $sampleSynonymsArray;
+}
 foreach($synonymsarr as $synonyms)
 {
 	$template['thesaurus']['SynonymsArray']['StartHTML'];
@@ -40,7 +64,6 @@ foreach($synonymsarr as $synonyms)
     foreach($synonyms as $synonymsentry)
     {
 		eval("echo \"".$template['thesaurus']['Synonyms']['ProcessHTML']."\";");
-      /**echo " <font color='green'><b> <a href='"."testSimulator.php?bibleVersion=".$version."&search=".trim($synonymsentry)."' target='_blank' style='color:green;text-decoration:none'> ".$synonymsentry."&nbsp"." </a> </b></font>"; **/
     }
 	echo "<br>";
 	$template['thesaurus']['SynonymsArray']['EndHTML'];
@@ -48,16 +71,4 @@ foreach($synonymsarr as $synonyms)
 
 echo $template['thesaurus']['EndHTML'];//}
 
-function file_get_contents_proxy($url)
-{
-$proxies = "150.236.18.16:8080";
-$pCurl = curl_init();
-curl_setopt ($pCurl, CURLOPT_URL, $url);
-curl_setopt($pCurl, CURLOPT_PROXY, $proxies);
-curl_setopt($pCurl, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($pCurl, CURLOPT_RETURNTRANSFER, true);
-$file_contents=curl_exec($pCurl);
-curl_close($pCurl);
-return $file_contents;
-}
 ?>

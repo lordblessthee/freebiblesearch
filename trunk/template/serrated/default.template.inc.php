@@ -65,20 +65,21 @@ $template['readBible']['ShowBibleVersions']['Version']['EndHTML']="</ol></FONT><
 $template['readBible']['ShowBibleVersions']['Version']['ProcessHTML']="<a href='readBible.php?version=\$versionShortName'>\$versionName</a><BR><BR>";
 $template['thesaurus']['StartHTML']="
 <BR>
-<P><P></P>
-<P>&nbsp;</P><B>";
-$template['thesaurus']['EndHTML']="";
+<h1>Thesaurus&nbsp;Search</h1>
+ <b>Please click on the synonyms to search the Bible<b>.<br><br>";
+$template['thesaurus']['EndHTML']="<br><br>Courtesy http://wordnet.princeton.edu/ &nbsp; &nbsp;Please see 
+license <a href='http://wordnet.princeton.edu/license'>details here</a>";
 $template['thesaurus']['SynonymsArray']['StartHTML']="
 <P><FONT face=Verdana size=3>Synonyms :";
 $template['thesaurus']['SynonymsArray']['EndHTML']="<BR><BR>";
 $template['thesaurus']['Synonyms']['StartHTML']="";
 $template['thesaurus']['Synonyms']['EndHTML']="";
-$template['thesaurus']['Synonyms']['ProcessHTML']="  [<a href='testSimulator.php?bibleVersion=\$version&search=\".trim(\$synonymsentry).\"' target='_blank' >\$synonymsentry</a> ] ";
+$template['thesaurus']['Synonyms']['ProcessHTML']="  [<a href='result.php?bibleVersion=\$version&search=\".trim(\$synonymsentry).\"' target='_blank' >\$synonymsentry</a> ] ";
 $template['searchResult']['StartHTML']="
 <BR>
 <P><P></P>
 <P>&nbsp;</P>
-     <a href=\"search.php\">Simple Search</a> | 
+     <a href=\"search.php\">Bible&nbsp;Search</a> | 
 	 <a href=\"advancedsearch.php\">Advanced Search</a> | <a href=\"readbible.php\">Read the Bible</a><br>";
 $template['searchResult']['EndHTML']="";
 $template['searchResult']['Book']['StartHTML']="
