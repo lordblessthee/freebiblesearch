@@ -3,7 +3,6 @@
 <html>
 <head>
 	<title>Biblesearch Installation</title>
-	<!--<?=$head?>-->
 </head>
 
 <body>
@@ -27,7 +26,6 @@ if(isset($_POST['InstallSubmit']))
 	{
 		$installMethod = $_POST['installMethod'];
 	}
-   // $biblesList=fopen("Bibles.txt","w");
 	unset($configVars);
 	if($installMethod=="FlatFiles")
 	{
@@ -39,9 +37,9 @@ if(isset($_POST['InstallSubmit']))
 				set_time_limit(count($_POST['biblename'])*$flatFilesExecutionLimitPerBible);
 		if(isset($_POST['bibledirname']))
 		{
-			$bibleDirectory = $_POST['bibledirname'];
+			$bibleDirectory = trim($_POST['bibledirname']);
 		}
-		if(trim($bibleDirectory)!="")
+		if(($bibleDirectory!="")&&(substr($bibleDirectory,-1,1)=='/'))
 		{
 			$configVars['varName'][]="bibleDatabase";
             $configVars['value'][]="\"".$bibleDirectory."\"";
@@ -59,7 +57,6 @@ if(isset($_POST['InstallSubmit']))
 				{
 					break;
 				}
-			///	fwrite($biblesList,"$biblename\n");
 				$configVars['varName'][]="BibleVersion[".$bibleCount."][\"name\"]";
 				$configVars['value'][]="\"".trim($tempResult[1])."\"";
 				$configIndex=count($configVars['varName'])-1;
@@ -174,15 +171,10 @@ if(isset($_POST['InstallSubmit']))
 }
 echo "<form action=\"". $_SERVER['PHP_SELF']." \" method=\"post\" \n";
 echo "enctype=\"multipart/form-data\">";
-// create an array to hold directory list
 $bibleList = array();
-// create a handler for the directory
 $handler = opendir("bibles");
-// keep going until all files in directory have been read
 while ($file = readdir($handler)) 
 {
-	// if $file isn't this directory or its parent, 
-	// add it to the results array
 	if ($file != '.' && $file != '..')
 	{
 		$ext = substr(strrchr($file, '.'), 1);
@@ -192,7 +184,6 @@ while ($file = readdir($handler))
 		}
     }
 }
-// tidy up: close the handler
 closedir($handler);
 foreach($bibleList as $bibleFile)
 {
@@ -274,9 +265,6 @@ if(!isset($databaseInfo['tableprefix']))
 echo "&nbsp;&nbsp;Database Table Prefix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type=\"text\" name=\"dbtableprefix\" size=\"25\" value=\"".$databaseInfo['tableprefix']."\" ><br></td></tr>";
-//Code to get template folder names into a select box
-//echo "<input type=\"radio\" name=\"selectTemplate\" value=\"FlatFiles\" checked = \"checked\">Flat Files<br>";
-//echo '<select name="select_template">';
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
 echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></td></tr><br>";
 	$template_directory = "./template";
@@ -287,7 +275,6 @@ echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>
 		background-color: #ccc;
 		padding: 8px;\">";
 		echo "<table border=1>";
-		//</div>";
 	while(!(($design = readdir($template))===false)){
      	if(is_dir("$template_directory/$design")){
      	if (($design !='.')&&($design !='..')&&(file_exists("$template_directory/".$design."/default.template.inc.php")))
@@ -318,9 +305,7 @@ echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>
      }
 }
 echo "</table></div></td></tr>";
-//echo '</select><br>';
 	closedir($template);
-	//End of code to get template folder names into a select box
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
 echo "<tr><td></td><td></td><td><input type=\"submit\" name=\"InstallSubmit\" value=\"Submit\"> \n";
 echo "<input type=\"submit\" name=\"InstallCancel\" value=\"Cancel\"> \n";
@@ -338,7 +323,6 @@ function installFlatfile($biblename,$writeDir)
 	global $message;
 	$noerror=true;
 	$readDir="bibles/";
-	//$writeDir="bibledb/";
 	if(!is_dir($writeDir))
 	{
 		mkdir($writeDir, 0777);
@@ -391,15 +375,12 @@ function installFlatfile($biblename,$writeDir)
 			$filecount++;
 		}
 		$num = count ($data);
-		/**print ' '.$num.'fields in line '.$row. '\n';**/
 		$row++;
-		//$filedata=$data[1].' '.$data[2].':'.$data[3].' '.$data[4];
 		$filedata=$data[3].' '.$data[4];
 		fwrite($fileresult,"$filedata \n");
 		$book_prev=$book;
 		$chapter_prev=$chapter;
 	}
-	//fclose ($handle);
 	return $noerror;
 }
 
@@ -415,7 +396,6 @@ function installDB($databaseInfo,$bibleVersion)
 	$databasepassword = $databaseInfo['databasepassword'] ;
 
 	$csvfile = "bibles/".$bibleVersion.".csv";
-	//$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
 	$con = mysql_connect($databasehost, $databaseusername, $databasepassword);
 	if (!$con) {
 		$message = "<font color=red>"."Could not connect: ".mysql_error()."</font>";
@@ -534,67 +514,4 @@ function installDB($databaseInfo,$bibleVersion)
 	}
 }
 
-/***function writeConfigFile($configVars)
-{
-		echo "in writeConfigFile"."<br>";
-        
-		$defaultConfig=file_get_contents("template/default.config.inc.php");
-        $configStr="";
-        for($i=0;$i<count($configVars['varName']);$i++)
-        {
-			if(isset($configVars['Comments'][$i]))
-			{
-				foreach($configVars['Comments'][$i] as $comments)
-				{
-					$configStr .="// ".$comments."\n";
-				}
-
-			}
-			$configStr .="\$".$configVars['varName'][$i]."=".$configVars['value'][$i].";"."\n";
-        }
-        $defaultConfigModified=str_replace("<%main%>",$configStr,$defaultConfig);
-        file_put_contents("data/config.inc.php",$defaultConfigModified);
-
-}
-
-function writeHeaderFooterFile()
-{
-       echo "in  writeHeaderFooterFile"."<br>";
-        
-	$defaultHeader=file_get_contents("template/default.header.inc.php");
-	file_put_contents("data/header.inc.php",$defaultHeader);
-	$defaultFooter=file_get_contents("template/default.footer.inc.php");
-	file_put_contents("data/footer.inc.php",$defaultFooter);
-}
-
-function writeTemplateFile($templateName)
-{
-       echo "in  writeTemplateFile"."<br>";
-        
-	$defaultTemplate=file_get_contents("template/".$templateName."/"."default.template.inc.php");
-	file_put_contents("data/template.inc.php",$defaultTemplate);
-	if(is_dir("template/".$templateName."/images/"))
-	{
-		$handler = opendir("data/images");
-		while(!(($images = readdir($handler))===false))
-		{
-			if($images!="."&&$images!="..")
-			{
-				unlink("data/images/".$images);
-			}
-		}
-		closedir($handler);
-		$handler = opendir("template/".$templateName."/images");
-		while(!(($images = readdir($handler))===false))
-		{
-			if($images!="."&&$images!="..")
-			{
-				copy("./template/".$templateName."/images/".$images, "./data/images/".$images); 
-
-			}
-
-		}
-		closedir($handler);
-	}
-}**/
 ?>

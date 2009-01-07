@@ -1,7 +1,7 @@
 <?php 
 if(isset($_GET['preview'])) 
 {
-    $preview =false;
+    $preview =true;
 	$installprefix="sample.";
 	require_once('previewsampledata.php');
 }
@@ -11,6 +11,7 @@ else
 	$installprefix="";
 }
 require_once('data/'.$installprefix.'template.inc.php');
+$title="Thesaurus Search";
 require_once('data/'.$installprefix.'header.inc.php');
 require_once('data/'.$installprefix.'config.inc.php');
 if(isset($_GET['word']))

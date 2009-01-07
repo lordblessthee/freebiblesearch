@@ -1,7 +1,6 @@
 <?php
 function writeConfigFile($configVars,$installprefix)
 {
-		//echo "in writeConfigFile"."<br>";
         
 		$defaultConfig=file_get_contents("template/default.config.inc.php");
         $configStr="";
@@ -24,7 +23,6 @@ function writeConfigFile($configVars,$installprefix)
 
 function writeHeaderFooterFile($installprefix)
 {
-       //echo "in  writeHeaderFooterFile"."<br>";
         
 	$defaultHeader=file_get_contents("template/default.header.inc.php");
 	file_put_contents("data/".$installprefix."header.inc.php",$defaultHeader);
@@ -34,7 +32,6 @@ function writeHeaderFooterFile($installprefix)
 
 function writeTemplateFile($templateName,$installprefix)
 {
-       //echo "in  writeTemplateFile"."<br>";
         
 	$defaultTemplate=file_get_contents("template/".$templateName."/"."default.template.inc.php");
 	file_put_contents("data/".$installprefix."template.inc.php",$defaultTemplate);
