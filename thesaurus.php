@@ -50,7 +50,7 @@ if(!$preview)
 	else
 	{
 		echo "<br><br><br>Could not extract thesaurus data probably not connected to internet";
-		echo "</body></html>";
+		require_once('data/'.$installprefix.'footer.inc.php');
 		exit;
 	}
 }
@@ -70,6 +70,7 @@ foreach($synonymsarr as $synonyms)
 	$template['thesaurus']['SynonymsArray']['EndHTML'];
 }
 
-echo $template['thesaurus']['EndHTML'];//}
+echo $template['thesaurus']['EndHTML'];
+require_once('data/'.$installprefix.'footer.inc.php');
 
 ?>
