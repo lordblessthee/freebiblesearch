@@ -1,7 +1,5 @@
 <?php
 require_once('ClassGrepSearch.inc.php');
-//require_once('data/config.inc.php');
-//require_once('data/template.inc.php');
 
 /**
  *
@@ -26,13 +24,11 @@ function createLinesFromFile($filePath,$classGrepSearch)
 	{
 		$verseNo=(int)substr($linesArray[$i],0,strpos($linesArray[$i]," "));
 		$verseText=substr($linesArray[$i],4);
-				//$verseText=htmlentities($verseTextArr);
 		$verseText = $classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($verseText)),
 			$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag'] );
 		if($classGrepSearch->getGlobalResult())
 		{
-			//$htmlLines= $htmlLines."line no:".$i.":".$newLine; 
 			$htmlLines .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
 		} 
 	} 
@@ -43,32 +39,6 @@ function createLinesFromFile($filePath,$classGrepSearch)
 
 
 
-/**
-*
-* function to return the Chapter Names
-*  from start and end index
-*
-* @param $startSpan string
-* @param $endSpan string
-*
-*	return array
-*/  
-function getBookNames_($startSpan,$endSpan)
-{
-	$Book = array();
-	$Book[1]="Chapter_1_3";
-	$Book[2]="Chapter_4_6";
-	$Book[3]="Chapter_7_9";
-	$Book[4]="Chapter_10_12"; 
-	$resultArray=array();
-	for($i=$startSpan;$i<=$endSpan;$i++)
-	{
-		array_push($resultArray,$Book[$i]);
-	}
-
-	return $resultArray;
-
-}
 
 
 /**
@@ -82,19 +52,6 @@ function getBookNames_($startSpan,$endSpan)
 
 function getBooks()
 {
-	/**$fileArray = file("BibleBooks2.csv");
-	$Book = array();
-			
-	foreach($fileArray as $line)
-	{
-		$tempResult = explode(",",$line);
-		$Book["All"][(int)trim($tempResult[0])]= trim($tempResult[1]);
-		for($i = 2; $i < count($tempResult);$i++)
-		{
-
-			$Book[trim($tempResult[$i])][(int)trim($tempResult[0])]= trim($tempResult[1]);
-		}
-	}**/
 	global $Book;
 			
 	return $Book;
@@ -103,19 +60,6 @@ function getBooks()
 
 function getBookIndex()
 {
-	/**$fileArray = file("BibleBooks2.csv");
-	$Book = array();
-			
-	foreach($fileArray as $line)
-	{
-		$tempResult = explode(",",$line);
-		$Book["All"][(int)trim($tempResult[0])]= trim($tempResult[1]);
-		for($i = 2; $i < count($tempResult);$i++)
-		{
-
-			$Book[trim($tempResult[$i])][(int)trim($tempResult[0])]= trim($tempResult[1]);
-		}
-	}**/
 	global $BookIndex;
 			
 	return $BookIndex;
@@ -135,10 +79,6 @@ function getBookNames($startSpan,$endSpan)
 {
 	$Book = array();
         $Book = getBooks();
-	//$Book[1]="Chapter_1_3";
-	//$Book[2]="Chapter_4_6";
-	//$Book[3]="Chapter_7_9";
-	//$Book[4]="Chapter_10_12"; 
 	$resultArray=array();
 	for($i=$startSpan;$i<=$endSpan;$i++)
 	{
@@ -288,9 +228,11 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 		$bookName=$Books["All"][$BookID];	$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT]))
 			,$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag']);
-		$newLine .=$template['searchResult']['Verse']['StartHTML'];
-		$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
-		$newLine .=$template['searchResult']['Verse']['EndHTML'];
+		if($classGrepSearch->getGlobalResult())
+		{
+			$newLine .=$template['searchResult']['Verse']['StartHTML'];
+			$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
+			$newLine .=$template['searchResult']['Verse']['EndHTML'];
 
 			if(($BookID!=$prevBookID))
 			{
@@ -326,7 +268,8 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 			
 			$prevBookID=$BookID;
 			$prevChapterNo=$ChapterNo;
-			$htmlLines .=$newLine; 
+			$htmlLines .=$newLine;
+		}
  
 	 }
 	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
@@ -348,19 +291,9 @@ function createLinesFromSample($classGrepSearch)
 	$ChapterNo=0;
 	$BookID=0;
 	$prevBookID=0;
-	//$kjvdb=fopen("samplekjv.csv","r");
 	$bookFirsttime=true;
-	//$tempcount=0;
-	//$tempstring="";
 	foreach($sampleSearch as $row)
 	{
-	//while($row=fgetcsv ($kjvdb, 8000, ","))
-	//{
-		//$tempstring .="\$sampleSearch[".$tempcount."][0]=".((int)$row[0]).";\n";
-		//$tempstring .="\$sampleSearch[".$tempcount."][1]=".((int)$row[1]).";\n";
-		//$tempstring .="\$sampleSearch[".$tempcount."][2]=".((int)$row[2]).";\n";
-		//$tempstring .="\$sampleSearch[".$tempcount."][3]="."\"".addslashes($row[3])."\"".";\n";
-		//$tempcount++;
 		$newLine="";
 		$BookID=(int)$row[0];
 		$ChapterNo=(int)$row[1];
@@ -368,9 +301,11 @@ function createLinesFromSample($classGrepSearch)
 		$bookName=$Books["All"][$BookID];	$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[3]))
 			,$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag']);
-		$newLine .=$template['searchResult']['Verse']['StartHTML'];
-		$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
-		$newLine .=$template['searchResult']['Verse']['EndHTML'];
+		if($classGrepSearch->getGlobalResult())
+		{
+			$newLine .=$template['searchResult']['Verse']['StartHTML'];
+			$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
+			$newLine .=$template['searchResult']['Verse']['EndHTML'];
 
 			if(($BookID!=$prevBookID))
 			{
@@ -406,9 +341,9 @@ function createLinesFromSample($classGrepSearch)
 			
 			$prevBookID=$BookID;
 			$prevChapterNo=$ChapterNo;
-			$htmlLines .=$newLine; 
+			$htmlLines .=$newLine;
+		}
 	 }
-	 //file_put_contents("sampletestfile3.txt",$tempstring);
 	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
 	$htmlLines .=$template['searchResult']['Book']['EndHTML'];
 	 
