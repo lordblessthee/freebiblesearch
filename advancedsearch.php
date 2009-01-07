@@ -16,10 +16,6 @@ require_once('data/'.$installprefix.'header.inc.php');
 echo $template['searchForm2']['StartHTML'];
 ?>
 
-<!--<h1>Keyword&nbsp;Search</h1>
-
- 
-     <strong>Keyword&nbsp;Search</strong> |--> 
    
    
     
@@ -43,16 +39,12 @@ Example "Eternal Life"<br />
  <br>
  <input id="casesensitive" type="checkbox" name="casesensitive" value="yes" /> 
 CaseSensitive
- <input id="wholewordsonly" type="checkbox" name="wholewordsonly" value="yes" /> 
- 
-Match whole words only
+
  <h3>Select version(s)</h3>
 
 <?php
 	require_once('data/'.$installprefix.'config.inc.php');
-	//$biblesArray = file("Bibles.txt");
 	echo "<select name=\"bibleVersion\" >";
-	//foreach($biblesArray as $line)
 	if($preview)
 	{
 		$BibleVersionPresent = $sampleBibleVersion;
@@ -63,7 +55,6 @@ Match whole words only
 	}
 	foreach($BibleVersionPresent as $line)
 	{
-		//$tempResult = explode(",",$line);
 		echo "<option value=\"".$line["shortname"]."\"";
 		if($line["shortname"]=="kjv")
 		{
@@ -75,9 +66,6 @@ Match whole words only
 	echo "</select>";
 ?>
  <h3>Options:</h3>
-
-
- </span><br />
 
  <br>
  <input type="radio" name="limit" value="none" id="limit-none"  checked="checked" >
@@ -284,7 +272,6 @@ Search from
 
  <br>
  <br>
- <input type="hidden" id="showmoreversions" name="showmoreversions" value="closed">
  <input type="submit" value="Search for keyword or phrase" />
  
  </form>

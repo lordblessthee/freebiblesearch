@@ -28,7 +28,6 @@ Example "Eternal Life"<br />
  <h3>Select version(s)</h3>
 
 <?php 
-	//$biblesArray = file("Bibles.txt");
 	echo "<select name=\"bibleVersion\" >";
 	if($preview)
 	{

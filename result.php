@@ -1,11 +1,5 @@
 <?php
-/**
- * PHP Script Coded by Rochak Chauhan to Scan a directory and display  the information
- *
- * (some functions are PHP 5 specific 
- */
 
-// time when this script starts 
 $startTime = time();
 if(isset($_GET['preview'])) 
 {
@@ -23,12 +17,10 @@ require_once('data/'.$installprefix.'config.inc.php');
 $title="Search Result";
 require_once('data/'.$installprefix.'header.inc.php');
 echo $template['searchResult']['StartHTML'];
-// create object of the class
 require_once('ClassGrepSearch.inc.php');
 require_once('functions.php');
 $classGrepSearch = ClassGrepSearch::getInstance();
 
-// The extentions to be searched (in this example, the extentions are comma seperated)
 $filesWithExtentionsToBeSearched = "txt"; 
 
 
@@ -40,7 +32,7 @@ else
    if(isset($_POST['bibleVersion'])) 
 	{
 	    $version = $_POST['bibleVersion'];
-		$scan_dir="bibledb/".$_POST['bibleVersion']."db/";
+		$scan_dir=$bibleDatabase.$_POST['bibleVersion']."db/";
 		$databasetable = "bibledb_".$_POST['bibleVersion'];
 	}
 	else
@@ -48,14 +40,12 @@ else
 		if(isset($_GET['bibleVersion'])) 
 		{
 			$version = $_GET['bibleVersion'];
-			$scan_dir="bibledb/".$_GET['bibleVersion']."db/";
+			$scan_dir=$bibleDatabase.$_GET['bibleVersion']."db/";
 			$databasetable = "bibledb_".$_GET['bibleVersion'];
 		}
 	}
-  // or
 }
 
-// set the value for the string to be searched 
 
 if(isset($_POST['search'])) {
     $searchString = $_POST['search'];
@@ -107,8 +97,8 @@ $classGrepSearch->setCaseSensitive(($caseSensitive=="yes")?true:false);
 
 
 $regex ='/([a-zA-Z]+)/';
-$replace ="<a href=\"thesaurus.php?word=$1&version=$version\">$1</a>";
-$searchWithLinks = preg_replace( $regex, $replace, $searchString);
+$replace="$1,";
+$keyWordList = substr(preg_replace( $regex, $replace, $searchString),0,-1);
 
 if($preview == true)
 {
@@ -141,7 +131,6 @@ $totalTime = ($endTime - $startTime);
 // total time taken to execute this script
 $timeTaken = $classGrepSearch->convertSecToMins($totalTime);
 
-/**echo "<BR><BR><hr><center><h4 >Info: Searched in <font color='blue'>".sizeof($classGrepSearch->getDirFile())."</font> Files in <font color='blue'>".sizeof($classGrepSearch->getDirArray())."</font> directories. </h4><hr>Total time taken: <font color='blue'> $timeTaken </font> </center><HR><center></b> Coded by:  Rochak Chauhan<HR>"; **/
 echo "<center><hr>Total time taken: <font color='blue'> $timeTaken </font></hr></center>";
 echo $template['searchResult']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
@@ -150,9 +139,17 @@ require_once('data/'.$installprefix.'footer.inc.php');
 function executeFromDB($classGrepSearch,$databaseInfo)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
-		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks;
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$keyWordList,
+		$template;
+
 	$classGrepSearch->createSearchArray($searchString);
-echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
+	$keyWordArray=explode(",",$keyWordList);
+	echo $template['searchResult']['KeywordList']['StartHTML'];
+	foreach($keyWordArray as $keyword)
+	{
+		eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
+	}
+	echo $template['searchResult']['KeywordList']['EndHTML'];
 	$htmllines = createLinesFromDB($databaseInfo,$classGrepSearch);
 	echo "<BR>".$htmllines;
 
@@ -161,7 +158,8 @@ echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following v
 function executeFromFile($classGrepSearch)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
-		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks,$template;
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$keyWordList,
+		$template,$version;
 if($limit=="bookset")
 {
 	$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookCategory(getCategoryName($bookset)),false);
@@ -173,64 +171,30 @@ else
 
 
 
-// print information
-//echo "<b><a href='simplesearch.php'>Search Again</a></b>";
-echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
+$keyWordArray=explode(",",$keyWordList);
+echo $template['searchResult']['KeywordList']['StartHTML'];
+foreach($keyWordArray as $keyword)
+{
+	eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
+}
+echo $template['searchResult']['KeywordList']['EndHTML'];
 $arrayOfFilenames = $classGrepSearch->getarrayOfFilenames();
 $bookName="";
 $previousBookName="";
 $prevChapterNo=0;
 $bookFirsttime=true;
-//echo $template['searchResult']['Book']['StartHTML'];
-//echo $template['searchResult']['Chapter']['StartHTML'];
 for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
     $fileName = str_replace($_SERVER['DOCUMENT_ROOT'],"",$arrayOfFilenames[$i]);
     $linkName = str_replace($_SERVER['DOCUMENT_ROOT'],"Z:",$arrayOfFilenames[$i]);
 	$ChapterNo = (int)substr($fileName,-7,3);
 	$bookNameStart=strlen($fileName)-strrpos($fileName,"/");
 	$bookName = substr($fileName,-$bookNameStart+1,$bookNameStart-8);
-	//if(i!=0 && $previousBookName!=$bookName)
-	//{
-	/**if($previousBookName!=$bookName)
-	{
-		//echo $template['searchResult']['Chapter']['EndHTML'];
-		//echo $template['searchResult']['Chapter']['StartHTML'];
-		if($bookFirsttime)
-		{
-			echo $template['searchResult']['Book']['StartHTML'];
-			eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
-			echo	$template['searchResult']['Chapter']['StartHTML'];
-			eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-			$bookFirsttime=false;
-
-		}
-		else
-			{
-				echo $template['searchResult']['Chapter']['EndHTML'];
-				echo $template['searchResult']['Book']['EndHTML'];
-				echo $template['searchResult']['Book']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
-				echo $template['searchResult']['Chapter']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-			}
-	}
-	else
-		if($ChapterNo!=$prevChapterNo)
-		{
-			echo $template['searchResult']['Chapter']['EndHTML'];
-			echo $template['searchResult']['Chapter']['StartHTML'];
-			eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-					
-		}**/
     $classGrepSearch->setGlobalCount(0);
-    //$htmllines = createLinesFromFile($scan_dir.$fileName,$searchString,$searchType,$classGrepSearch);
       $htmllines = createLinesFromFile($scan_dir.$fileName,$classGrepSearch);
 	if($htmllines !="")
 	{
 		if($previousBookName!=$bookName)
 		{
-		//echo $template['searchResult']['Chapter']['EndHTML'];
-		//echo $template['searchResult']['Chapter']['StartHTML'];
 			if($bookFirsttime)
 			{
 				echo $template['searchResult']['Book']['StartHTML'];
@@ -258,7 +222,6 @@ for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
 				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
 					
 			}
-		//eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
 		echo $template['searchResult']['Verse']['StartHTML'];
 		echo $htmllines;
 		echo $template['searchResult']['Verse']['EndHTML'];
@@ -275,10 +238,16 @@ echo $template['searchResult']['Book']['EndHTML'];
 function executeFromSample($classGrepSearch)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
-		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$searchWithLinks;
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$keyWordList,
+		$template,$version;
 	$classGrepSearch->createSearchArray($searchString);
-//echo "<b><a href='simplesearch.php'>Search Again</a></b>";
-echo "<HR> The Search Keyword '<b>$searchWithLinks</b>' was found in following verse(s): <BR>";
+	$keyWordArray=explode(",",$keyWordList);
+	echo $template['searchResult']['KeywordList']['StartHTML'];
+	foreach($keyWordArray as $keyword)
+	{
+		eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
+	}
+	echo $template['searchResult']['KeywordList']['EndHTML'];
 	$htmllines = createLinesFromSample($classGrepSearch);
 	echo "<BR>".$htmllines;
 

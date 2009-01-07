@@ -1,9 +1,4 @@
 <?php
-/**
- * PHP Script Coded by Rochak Chauhan to Scan a directory and display  the information
- *
- * (some functions are PHP 5 specific 
- */
 
 // time when this script starts 
 $startTime = time();
@@ -20,50 +15,29 @@ else
 	$installprefix="";
 }
 
-// create object of the class
 require_once('data/'.$installprefix.'template.inc.php');
-require_once('data/'.$installprefix.'header.inc.php');
 require_once('data/'.$installprefix.'config.inc.php');
 require_once('ClassGrepSearch.inc.php');
 require_once('functions.php');
 $classGrepSearch = ClassGrepSearch::getInstance();
 
 
-if(isset($_GET['path'])) {
-    $scan_dir = $_GET['path'];
-}
-else
-{
-  $scanDir="kjvdb2/";    
- 
-}
 
-//$databaseType = "DB";
 $verseTextArray =array();
 
 if(!isset($_GET['version']))
 {
-	//echo "<br>1<br>";
-	//print_r($template['readBible']['ShowBibleVersions']);
-	//echo "<br>2<br>";
+	$title="Select&nbsp;Version";
+	require_once('data/'.$installprefix.'header.inc.php');
 	$currentTemplate=$template['readBible']['ShowBibleVersions'];
-	//print_r($currentTemplate);
-
-	//$biblesArray = file("Bibles.txt");
-	//echo "Select Version<br>";
-	//echo "<br>3<br>";
-	//print_r($currentTemplate['StartHTML']);
 	echo $currentTemplate['StartHTML'];
 	echo $currentTemplate['Version']['StartHTML'];
-	//foreach($biblesArray as $line)
 	if($preview)
 	{
 		foreach($sampleBibleVersion as $versionInfo)
 		{
 			$versionName=$versionInfo["name"];
 			$versionShortName=$versionInfo["shortname"];
-			//$tempResult = explode(",",$line);
-			//       echo "<font color='green'><b> <a href='"."readBible.php?version=".$versionInfo["shortname"]."'> //".$versionInfo["name"]." </a> </font></b><br>";
 			eval("echo \"".$currentTemplate['Version']['ProcessHTML']."\";");
 			
 		}
@@ -75,36 +49,35 @@ if(!isset($_GET['version']))
 		{
 			$versionName=$versionInfo["name"];
 			$versionShortName=$versionInfo["shortname"];
-			//$tempResult = explode(",",$line);
-			//       echo "<font color='green'><b> <a href='"."readBible.php?version=".$versionInfo["shortname"]."'> //".$versionInfo["name"]." </a> </font></b><br>";
 			eval("echo \"".$currentTemplate['Version']['ProcessHTML']."\";");
 			
 		}
 	}
 	$currentTemplate['Version']['EndHTML'];
 	$currentTemplate['EndHTML'];
-}else
-{
-$version=$_GET['version'];
-if($preview)
-{
 }
 else
-	if($databaseType=="FILE")
+{
+	$version=$_GET['version'];
+	if($preview)
 	{
-		$scanDir=$bibleDatabase.$version."db/";
 	}
 	else
-		if($databaseType=="DB")
+		if($databaseType=="FILE")
 		{
-			$databasetable = "bibledb_".$version;
-			$databaseInfo['databasehost'] = $dbHost;
-			$databaseInfo['databasename'] = $dbName;
-			$databaseInfo['tableprefix'] = $dbTablePrefix;
-			$databaseInfo['databaseusername'] =$dbUser;
-			$databaseInfo['databasepassword'] = $dbPassword;
-			$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
+			$scanDir=$bibleDatabase.$version."db/";
 		}
+		else
+			if($databaseType=="DB")
+			{
+				$databasetable = "bibledb_".$version;
+				$databaseInfo['databasehost'] = $dbHost;
+				$databaseInfo['databasename'] = $dbName;
+				$databaseInfo['tableprefix'] = $dbTablePrefix;
+				$databaseInfo['databaseusername'] =$dbUser;
+				$databaseInfo['databasepassword'] = $dbPassword;
+				$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
+			}
 
 
 if(isset($template['readBible']['ShowBooks']['ChapterLinks'])) 
@@ -144,6 +117,8 @@ if(isset($_GET['book']))
 		$ChapterNo = 1;
 
 	}
+	$title=$bookName." ".$ChapterNo;
+	require_once('data/'.$installprefix.'header.inc.php');
 	if($preview)
 	{
 		$allChapters=getChaptersFromSample($bookName,$chapterNo);
@@ -151,7 +126,7 @@ if(isset($_GET['book']))
 	else
 		if($databaseType=="FILE")
 		{
-			$chapterText = $bookName.str_pad($chapterNo,3,"0",STR_PAD_LEFT).".txt";
+			$chapterText = $bookName.str_pad($ChapterNo,3,"0",STR_PAD_LEFT).".txt";
 		}
 		else
 			if($databaseType=="DB")
@@ -167,7 +142,6 @@ if(isset($_GET['book']))
 	if($showChapterLinks)
 	{
 
-		//echo $template['chapterStartHTML'];
 		echo $currentTemplate['ChapterLinks']['StartHTML'];
 		foreach($allChapters as $chapterFile)
 		{
@@ -180,7 +154,6 @@ if(isset($_GET['book']))
 				{
 					if(ereg ("([0-9]+)", $chapterFile, $chapters)) 
 					{
-						//$chapterNo = (int)$chapters[count($chapters)-1];
 						$chapterNoLink = (int)substr($chapterFile,-7,3);
 					}
 				}else
@@ -212,25 +185,19 @@ if(isset($_GET['book']))
 			if($databaseType=="FILE")
 			{
 				$file_path=$scanDir.$bookName."/".$chapterText;
-				//$fileContents=file_get_contents($file_path);
 				$fileContents=file($file_path);
 				foreach($fileContents as $verseText)
 				{
-					//$txt .="v".$verseText[0]." ".$verseText[1]."<br>";
 					$verseNo=(int)substr($verseText,0,strpos($verseText," "));
 					$verseText=substr($verseText,4);
-					//$verseText=htmlentities($verseTextArr);
 					$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
 				}
-				//$txt=htmlentities($fileContents);
-				//$txt = ereg_replace( "\n", '<br />', $txt );
 			}
 			else
 				if($databaseType=="DB")
 				{
 					foreach($verseTextArray as $verseTextArr)
 					{
-						//$txt .="v".$verseText[0]." ".$verseText[1]."<br>";
 						$verseNo=$verseTextArr[0];
 						$verseText=$verseTextArr[1];
 						$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
@@ -244,22 +211,18 @@ if(isset($_GET['book']))
     
 }else
 {
+	$title="Bible Book Index";
+	require_once('data/'.$installprefix.'header.inc.php');
 $start_span=1;
 $end_span=66;
 $currentTemplate=$template['readBible']['ShowBooks'];
 $allBookList=getBookNames($start_span,$end_span);
-//echo $template['bookStartHTML'];
 echo $currentTemplate['StartHTML'];
 echo $currentTemplate['Book']['StartHTML'];
-//$tempstring="";
 foreach($allBookList as $bookName)
 {
-  		/**echo "<BR><font color='green'><b> <a href='"."readBible.php?version=".$version."&book=".$book."&chapterlinks=true"."'  style='color:green;text-decoration:none'> ".$book." </a> </font></b>";**/
-		//echo str_replace(array("<%version%>","<%book%>"),array($version,$book),$bookHTML);
 	eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
 
-	//if($showChapterLinks)
-	//{
 	if($preview)
 	{
 		$allChapters=getChaptersFromSample($bookName,false);
@@ -276,10 +239,8 @@ foreach($allBookList as $bookName)
 			}
 			echo $currentTemplate['ChapterLinks']['StartHTML'];
 			
-			//$tempstring .="\$sampleBookChapters['".$bookName."']=array(";
 			foreach($allChapters as $chapterFile)
 			{
-				//$tempstring .=$chapterFile.",";
 				if($preview)
 				{
 					$chapterNo = $chapterFile;
@@ -290,7 +251,6 @@ foreach($allBookList as $bookName)
 					
 						if(ereg ("([0-9]+)", $chapterFile, $chapters)) 
 						{
-							//$chapterNo = (int)$chapters[count($chapters)-1];
 							$chapterNo = (int)substr($chapterFile,-7,3);
 						}
 					}
@@ -299,25 +259,20 @@ foreach($allBookList as $bookName)
 						{
 							$chapterNo = $chapterFile;
 						}
-					/**echo "<font color='green'><b> <a href='"."readBible.php?version=".$version."&book=".$book."&chapter=".$chapterNo."&chapterlinks=true"."'  style='color:green;text-decoration:none'> ".$chapterNo." </a> </font></b>";**/
 					eval("echo \"".$currentTemplate['ChapterLinks']['ProcessHTML']."\";");
 			}
-			//$tempstring =substr($tempstring,0,-1).");\n\n";
 			echo $currentTemplate['ChapterLinks']['EndHTML'];
 				
-	//}
 
 	
 
 
 }
-//file_put_contents("sampletestfile.txt",$tempstring);
 echo $currentTemplate['Book']['EndHTML'];
 
 }
 
 }
-//echo $template['chapterEndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 
 
@@ -385,10 +340,7 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 		while($row=mysql_fetch_array($result))
 		{
 			$verseTextArray[]=$row;
-			//$tempstring .="\$sampleVerses[".count($verseTextArray)."][0]=".((int)$row[0]).";\n";
-			//$tempstring .="\$sampleVerses[".count($verseTextArray)."][1]="."\"".addslashes($row[1])."\"".";\n";
 		}
-		//file_put_contents("sampletestfile2.txt",$tempstring);
 	}
 	$sql = " SELECT distinct chapterno FROM ".$databasetable."  where bookid = $bookId;";
 	$result=mysql_query($sql) or die(mysql_error()); 
@@ -406,40 +358,16 @@ function getChaptersFromSample($bookName,$chapterNo)
 	global $sampleBookChapters;
 	global $sampleVerses;
 	global $verseTextArray;
-	/**$databasehost = $databaseInfo['databasehost'];
-	$databasename = $databaseInfo['databasename'];
-	$databasetable = $databaseInfo['databasetable'];
-	$databaseusername = $databaseInfo['databaseusername'];
-	$databasepassword = $databaseInfo['databasepassword'] ;**/
 	$Books=getBookIndex();
-	/**$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
-    mysql_select_db($databasename);**/
 	$bookId=(int)$Books[$bookName];
 	if($chapterNo!==false)
 	{
-		/**$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
-		$result=mysql_query($sql) or die(mysql_error());
-		$tempstring="";
-		while($row=mysql_fetch_array($result))
+		foreach($sampleVerses as $row)
 		{
 			$verseTextArray[]=$row;
-			//$tempstring .="\$sampleVerses[".count($verseTextArray)."][0]=".((int)$row[0]).";\n";
-			//$tempstring .="\$sampleVerses[".count($verseTextArray)."][1]="."\"".addslashes($row[1])."\"".";\n";
 		}
-		//file_put_contents("sampletestfile2.txt",$tempstring);**/
-	foreach($sampleVerses as $row)
-	{
-		$verseTextArray[]=$row;
 	}
-	}
-	/**$sql = " SELECT distinct chapterno FROM ".$databasetable."  where bookid = $bookId;";
-	$result=mysql_query($sql) or die(mysql_error());**/ 
-	/**while($row=mysql_fetch_array($result))
-	{
-		$chapterNoArray[]=$row[0];
-
-	}**/
-
+	
 	return $sampleBookChapters[$bookName];
     
 }
