@@ -30,7 +30,7 @@ echo "<tr><td><font color=green><b>Preview Template</b>(Click on the screenshot 
 			{
 				echo "<tr></tr><tr>";
 			}
-			echo "<td><center>$design<br><a href=\"preview.php?template=$design\" target=new ><img src =\"template/$design/screenshot.jpg\" height=194 width=308></a><br><!--<input type=\"radio\" name=\"selectTemplate\" value=\"$design\" $checked >--></center>";
+			echo "<td><center><font size=5><b>$design</b></font><br><a href=\"preview.php?template=$design\" target=new ><img src =\"template/$design/screenshot.jpg\" height=194 width=308></a></center>";
 			if($count%2==0)
 			{
 				echo "</td></tr>";

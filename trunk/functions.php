@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * File containing miscellaneous functions
+ */
 require_once('ClassGrepSearch.inc.php');
 
 /**
@@ -23,7 +27,7 @@ function createLinesFromFile($filePath,$classGrepSearch)
 	for($i=0;$i<count($linesArray);$i++) 
 	{
 		$verseNo=(int)substr($linesArray[$i],0,strpos($linesArray[$i]," "));
-		$verseText=substr($linesArray[$i],4);
+		$verseText=substr($linesArray[$i],strpos($linesArray[$i]," "));
 		$verseText = $classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($verseText)),
 			$template['searchResult']['Verse']['SearchKeyStartTag'],
 				$template['searchResult']['Verse']['SearchKeyEndTag'] );
@@ -44,7 +48,6 @@ function createLinesFromFile($filePath,$classGrepSearch)
 /**
  *
  * function to get array of all Book Names
- *  from a CSV file
  *
  * return array
  *
@@ -56,6 +59,14 @@ function getBooks()
 			
 	return $Book;
 }
+
+/**
+ *
+ * function to get array of all Book Index from 
+ *  Book Names
+ * return array
+ *
+ */  
 
 
 function getBookIndex()
@@ -70,8 +81,8 @@ function getBookIndex()
 * function to return the Book Names
 *  from start and end index
 *
-* @param $start_span mixed
-* @param $end_span mixed
+* @param $start_span number
+* @param $end_span number
 *
 *	return array
 */  
@@ -94,6 +105,9 @@ function getBookNames($startSpan,$endSpan)
 * function to get category name from
 *  a category number
 *
+* @param $aCategoryNumber number
+*
+*	return array
 */  
 
 function getCategoryName($aCategoryNumber)
@@ -117,6 +131,7 @@ function getCategoryName($aCategoryNumber)
 * function to get all Book Names
 *  in a particular category
 *
+* @param $aCategoryName string
 */  
 
 function getBookCategory($aCategoryName)
@@ -131,6 +146,18 @@ function getBookCategory($aCategoryName)
 	return $resultArray;
 
 }
+
+/**
+*
+* function to create HTML Lines
+* from database for the given
+* search string.
+*
+* @param $databaseInfo array
+* @param $classGrepSearch class Instance
+*
+* return string
+*/  
 
 function createLinesFromDB($databaseInfo,$classGrepSearch)
 {
@@ -278,6 +305,17 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 
 }
 
+/**
+*
+* function to create HTML Lines
+* for sample search for the given
+* search string.
+*
+* @param $classGrepSearch class Instance
+*
+* return string
+*/  
+
 function createLinesFromSample($classGrepSearch)
 {
 	global $limit,$start_span,$end_span,$bookset;
@@ -349,6 +387,17 @@ function createLinesFromSample($classGrepSearch)
 	 
 	  return $htmlLines;
 }
+
+/**
+*
+* function to create SQL for all in chapter
+* search for database
+*
+* @param $classGrepSearch class Instance
+* @param $varArray array
+*
+* return string
+*/ 
 
 function createAllinChapterSQL($classGrepSearch,$varArray)
 {

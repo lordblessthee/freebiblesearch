@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+/**
+ * File containing code to preview sample pages
+ */
+
 require_once('installfunctions.php');
 if(isset($_REQUEST['showlinks']))
 {

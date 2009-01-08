@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * File containing the default config file data please
+ * do not remove <%main%>
+ */
+
 <%main%>
 
 $Book["All"][1]="Genesis";

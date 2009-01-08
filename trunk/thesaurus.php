@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+/**
+ * File containing code to show the result of thesaurus search
+ */
+
 if(isset($_GET['preview'])) 
 {
     $preview =true;

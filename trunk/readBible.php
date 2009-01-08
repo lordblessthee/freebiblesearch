@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * File containing code to show the read bible pages
+ */
+
 // time when this script starts 
 $startTime = time();
 
@@ -189,7 +193,7 @@ if(isset($_GET['book']))
 				foreach($fileContents as $verseText)
 				{
 					$verseNo=(int)substr($verseText,0,strpos($verseText," "));
-					$verseText=substr($verseText,4);
+					$verseText=substr($verseText,strpos($verseText," "));
 					$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
 				}
 			}
@@ -277,28 +281,16 @@ require_once('data/'.$installprefix.'footer.inc.php');
 
 
 
+/**
+ *
+ * function to get all files in a directory
+ *  as a string array
+ *
+ * @param $start_dir string
+ * 
+ * return array
+ */
 
-
-
-function getLargestArchiveIndex($archiveFileArray)
-{
-		$bigNum = 0;
-		foreach ($archiveFileArray as $fileName) 
-		{
-			if(ereg ("([0-9]+)", $fileName, $numbers)) 
-			{
-				$currNum = (int)$numbers[0];
-			}
-
-			if($bigNum < $currNum) 
-			{
-				$bigNum = $currNum;
-			}
-		}
-
-		return $bigNum;
-
-}
 
 function listFilesInDir($start_dir)
 {
@@ -319,6 +311,19 @@ function listFilesInDir($start_dir)
   closedir($dir);
   return $files;
 }
+
+/**
+ *
+ * function to return all chapterNos
+ * in a book and also optional text
+ * from database
+ *
+ * @param $databaseInfo array
+ * @param $bookName string
+ * @param  $chapterNo mixed
+ * 
+ * return array
+ */
 
 function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 {
@@ -352,6 +357,18 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	return $chapterNoArray;
     
 }
+
+/**
+ *
+ * function to return all chapterNos
+ * in a book and also optional text
+ * from sample data
+ *
+ * @param $bookName string
+ * @param  $chapterNo mixed
+ * 
+ * return array
+ */
 
 function getChaptersFromSample($bookName,$chapterNo)
 {

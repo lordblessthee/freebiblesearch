@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * File containing code to show the search result
+ */
+
 $startTime = time();
 if(isset($_GET['preview'])) 
 {
@@ -136,6 +140,15 @@ echo $template['searchResult']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 
 
+/**
+ *
+ * function to create HTML from database
+ *
+* @param $classGrepSearch class Instance
+ * @param $databaseInfo array
+ *
+ */  
+
 function executeFromDB($classGrepSearch,$databaseInfo)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
@@ -154,6 +167,14 @@ function executeFromDB($classGrepSearch,$databaseInfo)
 	echo "<BR>".$htmllines;
 
 }
+
+/**
+*
+* function to create HTML from Files
+*
+*  @param $classGrepSearch class Instance
+*
+*/  
 
 function executeFromFile($classGrepSearch)
 {
@@ -234,6 +255,14 @@ echo $template['searchResult']['Chapter']['EndHTML'];
 echo $template['searchResult']['Book']['EndHTML'];
 
 }
+
+/**
+*
+* function to create HTML from Sample data
+*
+*  @param $classGrepSearch class Instance
+*
+*/
 
 function executeFromSample($classGrepSearch)
 {
