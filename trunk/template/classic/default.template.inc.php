@@ -1,10 +1,6 @@
 <?php
-$template['HeaderText']="<STYLE fprolloverstyle>A:hover {
-	COLOR: #ff8080; FONT-VARIANT: small-caps; TEXT-DECORATION: none
-}
-</STYLE>";
-$template['HeaderBodyText']="text=#020280 vLink=#574d95 aLink=#ff80c0 link=#6bc552 bgProperties=fixed 
-bgColor=#ffffff background=\"data/".$installprefix."images/bak.gif\"";
+$template['HeaderText']="";
+$template['HeaderBodyText']="";
 $template['readBible']['ShowBooks']['StartHTML']="
 <P>&nbsp;</P><B>
 <P><U><CENTER><FONT face=Verdana size=5>Bible Book Index</FONT></CENTER>
@@ -102,7 +98,7 @@ $template['searchResult']['Verse']['StartHTML']="
   <P align=justify><FONT face=Verdana size=3>";
 $template['searchResult']['Verse']['ProcessHTML']=" v\$verseNo \$verseText <BR> ";
 $template['searchResult']['Verse']['EndHTML']="</P></FONT></BLOCKQUOTE>";
-$template['searchResult']['Verse']['SearchKeyStartTag']="<b><font color ='red'>";
+$template['searchResult']['Verse']['SearchKeyStartTag']="<b><font color ='black'>";
 $template['searchResult']['Verse']['SearchKeyEndTag']="</font></b>";
 $template['searchForm1']['StartHTML']="<h1>Bible&nbsp;Search</h1>
 										<strong>Bible&nbsp;Search</strong> | 

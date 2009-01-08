@@ -134,7 +134,7 @@ function getBookCategory($aCategoryName)
 
 function createLinesFromDB($databaseInfo,$classGrepSearch)
 {
-        global $limit,$start_span,$end_span,$bookset,$template;
+        global $limit,$start_span,$end_span,$bookset,$template,$version;
 	$databasehost = $databaseInfo['databasehost'];
 	$databasename = $databaseInfo['databasename'];
 	$databasetable = $databaseInfo['databasetable'];
