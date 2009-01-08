@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * File containing code sample data for preview
+ */
+
 // The Bible Full Name (THE AMPLIFIED BIBLE)
 $sampleBibleVersion[0]["name"]="THE AMPLIFIED BIBLE";
 // The Bible Short Name (ab)

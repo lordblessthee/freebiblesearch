@@ -1,4 +1,20 @@
 <?php
+
+/**
+ * File containing miscellaneous functions
+ */
+
+
+/**
+ *
+ * function to write the configuration file after 
+ * installation
+ *
+ * @param $configVars array
+ * @param $installprefix string
+ *
+ */  
+
 function writeConfigFile($configVars,$installprefix)
 {
         
@@ -21,6 +37,15 @@ function writeConfigFile($configVars,$installprefix)
 
 }
 
+/**
+ *
+ * function to write the header and footer file after 
+ * installation
+ *
+ * @param $installprefix string
+ *
+ */ 
+
 function writeHeaderFooterFile($installprefix)
 {
         
@@ -29,6 +54,17 @@ function writeHeaderFooterFile($installprefix)
 	$defaultFooter=file_get_contents("template/default.footer.inc.php");
 	file_put_contents("data/".$installprefix."footer.inc.php",$defaultFooter);
 }
+
+/**
+ *
+ * function to write the template file after 
+ * installation
+ *
+ *
+  * @param $templateName string
+ * @param $installprefix string
+ *
+ */ 
 
 function writeTemplateFile($templateName,$installprefix)
 {

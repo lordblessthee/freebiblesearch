@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * File containing the data for processing templates
+ */
+
 $template['HeaderText']="";
 $template['HeaderBodyText']="";
 $template['readBible']['ShowBooks']['StartHTML']="

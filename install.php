@@ -317,6 +317,14 @@ echo "</body>\n";
 echo "</html>\n";
 
 
+/**
+ *
+ * function to do a flat file based installation
+ *
+ * @param $biblename string
+ * @param $writeDir string
+ *
+ */
 
 function installFlatfile($biblename,$writeDir)
 {
@@ -362,7 +370,7 @@ function installFlatfile($biblename,$writeDir)
 			{
 				fclose($fileresult);
 			}
-			$fileresult=fopen($bibleDir.$book.'/'.$book.$chapter.'.txt', 'w');
+			$fileresult=fopen($bibleDir.$book.'/'.$book.str_pad($chapter,3, 0, STR_PAD_LEFT).'.txt', 'w');
 			$filecount++;
 		}else
 		if($chapter != $chapter_prev)
@@ -371,7 +379,7 @@ function installFlatfile($biblename,$writeDir)
 			{
 				fclose($fileresult);
 			}
-			$fileresult=fopen($bibleDir.$book.'/'.$book.$chapter.'.txt', 'w');
+			$fileresult=fopen($bibleDir.$book.'/'.$book.str_pad($chapter,3, 0, STR_PAD_LEFT).'.txt', 'w');
 			$filecount++;
 		}
 		$num = count ($data);
@@ -383,6 +391,15 @@ function installFlatfile($biblename,$writeDir)
 	}
 	return $noerror;
 }
+
+/**
+ *
+ * function to do a database based installation
+ *
+ * @param $databaseInfo array
+ * @param $bibleVersion string
+ *
+ */
 
 function installDB($databaseInfo,$bibleVersion)
 {

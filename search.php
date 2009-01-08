@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * File containing code to show the simple search form
+ */
+
 $title="Bible Search";
 if(isset($_GET['preview'])) 
 {

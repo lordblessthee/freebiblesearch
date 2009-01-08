@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * File containing the data for processing templates
+ */
+
 $template['HeaderText']="<STYLE fprolloverstyle>A:hover {
 	COLOR: #ff8080; FONT-VARIANT: small-caps; TEXT-DECORATION: none
 }

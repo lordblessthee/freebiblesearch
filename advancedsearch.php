@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * File containing code to show form for advanced search
+ */
 $title="Advanced Search";
 if(isset($_GET['preview'])) 
 {
