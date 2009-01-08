@@ -58,6 +58,8 @@ else
 {
 	$synonymsarr = $sampleSynonymsArray;
 }
+echo $template['thesaurus']['Word']['StartHTML'];
+eval("echo \"".$template['thesaurus']['Word']['ProcessHTML']."\";");
 foreach($synonymsarr as $synonyms)
 {
 	$template['thesaurus']['SynonymsArray']['StartHTML'];
@@ -69,7 +71,7 @@ foreach($synonymsarr as $synonyms)
 	echo "<br>";
 	$template['thesaurus']['SynonymsArray']['EndHTML'];
 }
-
+echo $template['thesaurus']['Word']['EndHTML'];
 echo $template['thesaurus']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 
