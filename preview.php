@@ -40,9 +40,9 @@ else
 	echo "<b><font size=3><a href='search.php?preview' target='thePage' >Search Form</a></font></b><br><br><br>\n";
 	echo "<b><font size=3><a href='advancedsearch.php?preview' target='thePage' >Advanced Search Form</a></font></b><br><br><br>\n";
 	echo "<b><font size=3><a href='thesaurus.php?word=eternal%20life&preview' target='thePage' >Thesaurus Search</a></font></b><br><br><br>\n";
-	echo "<b><font size=3><a href='readBible.php?preview' target='thePage' >Bible Version Index</a></font></b><br><br><br>\n";
-	echo "<b><font size=3><a href='readBible.php?version=kjv&preview' target='thePage' >Bible Book Index</a></font></b><br><br><br>\n";
-	echo "<b><font size=3><a href='readBible.php?version=kjv&book=Psalms&chapter=23&preview' target='thePage' >Bible Verses</a></font></b><br><br><br>\n";
+	echo "<b><font size=3><a href='readbible.php?preview' target='thePage' >Bible Version Index</a></font></b><br><br><br>\n";
+	echo "<b><font size=3><a href='readbible.php?version=kjv&preview' target='thePage' >Bible Book Index</a></font></b><br><br><br>\n";
+	echo "<b><font size=3><a href='readbible.php?version=kjv&book=Psalms&chapter=23&preview' target='thePage' >Bible Verses</a></font></b><br><br><br>\n";
     echo "</body></html>"; 
 } 
 ?>
