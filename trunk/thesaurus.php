@@ -51,7 +51,7 @@ if(!$preview)
 				$synonymsarr[]=explode(",",substr($newtxt,strpos($newtxt,")")+strlen(")")));
 			}
 		}
-		if(!isset($synonymsarr[]))
+		if(!isset($synonymsarr))
 		{
 			echo "<br><br><br>Could not extract thesaurus data probably Server down";
 			require_once('data/'.$installprefix.'footer.inc.php');
