@@ -15,12 +15,12 @@ $template['readBible']['ShowBooks']['Book']['StartHTML']="
 face=Verdana size=3><BR><BR></FONT></U><FONT face=Verdana size=3>
 <BLOCKQUOTE>
   <P align=left><FONT face=\"Verdana size=\" 3>";
- $template['readBible']['ShowBooks']['Book']['ProcessHTML']=" <br><a href='readBible.php?version=\$version&book=\$bookName'> \$bookName</a><br> ";
+ $template['readBible']['ShowBooks']['Book']['ProcessHTML']=" <br><a href='readbible.php?version=\$version&book=\$bookName'> \$bookName</a><br> ";
 $template['readBible']['ShowBooks']['Book']['EndHTML']="</FONT>
   <P align=center><FONT face=\"Verdana size=\" 3><BR><BR></FONT></FONT></B>
   ";
 $template['readBible']['ShowBooks']['ChapterLinks']['StartHTML']="";
-$template['readBible']['ShowBooks']['ChapterLinks']['ProcessHTML']=" [<a href='readBible.php?version=\$version&book=\$bookName&chapter=\$chapterNo'>\$chapterNo</a>] ";
+$template['readBible']['ShowBooks']['ChapterLinks']['ProcessHTML']=" [<a href='readbible.php?version=\$version&book=\$bookName&chapter=\$chapterNo'>\$chapterNo</a>] ";
 $template['readBible']['ShowBooks']['ChapterLinks']['EndHTML']="<br><br>";
 $template['readBible']['ShowVerses']['ShowChapterLinks']=true;
 $template['readBible']['ShowVerses']['StartHTML']="
@@ -32,8 +32,8 @@ $template['readBible']['ShowVerses']['EndHTML']="";
 $template['readBible']['ShowVerses']['BookIndex']['StartHTML']="";
 $template['readBible']['ShowVerses']['BookIndex']['ProcessHTML']="<FONT face=Verdana size=3>
 <FONT face=Verdana size=3><A 
-href='readBible.php?version=\$version'><BR>
-<P align=center><A href='readBible.php?version=\$version'><B><FONT 
+href='readbible.php?version=\$version'><BR>
+<P align=center><A href='readbible.php?version=\$version'><B><FONT 
 face=Verdana size=5>Bible Book - INDEX</FONT></B></A></P></A></FONT>
 ";
 $template['readBible']['ShowVerses']['BookIndex']['EndHTML']="";
@@ -41,7 +41,7 @@ $template['readBible']['ShowVerses']['Book']['StartHTML']="";
 $template['readBible']['ShowVerses']['Book']['ProcessHTML']="<b><FONT COLOR='blue' size=4>\$bookName </FONT></b><br>";
 $template['readBible']['ShowVerses']['Book']['EndHTML']="";
 $template['readBible']['ShowVerses']['ChapterLinks']['StartHTML']="";
-$template['readBible']['ShowVerses']['ChapterLinks']['ProcessHTML']=" [<a href='readBible.php?version=\$version&book=\$bookName&chapter=\$chapterNoLink'>\$chapterNoLink</a>]";
+$template['readBible']['ShowVerses']['ChapterLinks']['ProcessHTML']=" [<a href='readbible.php?version=\$version&book=\$bookName&chapter=\$chapterNoLink'>\$chapterNoLink</a>]";
 $template['readBible']['ShowVerses']['ChapterLinks']['EndHTML']="<BR><BR>";
 $template['readBible']['ShowVerses']['Chapter']['StartHTML']="";
 $template['readBible']['ShowVerses']['Chapter']['ProcessHTML']="<i><FONT COLOR='blue'size=4>Chapter  \$ChapterNo </FONT></i>";
@@ -62,7 +62,7 @@ $template['readBible']['ShowBibleVersions']['StartHTML']="
 $template['readBible']['ShowBibleVersions']['EndHTML']="";
 $template['readBible']['ShowBibleVersions']['Version']['StartHTML']="
 <P><FONT face=Verdana size=3>Versions :<BR><ol>";
-$template['readBible']['ShowBibleVersions']['Version']['ProcessHTML']="<a href='readBible.php?version=\$versionShortName'>\$versionName</a><BR><BR>";
+$template['readBible']['ShowBibleVersions']['Version']['ProcessHTML']="<a href='readbible.php?version=\$versionShortName'>\$versionName</a><BR><BR>";
 $template['readBible']['ShowBibleVersions']['Version']['EndHTML']="</ol></FONT></P>";
 $template['thesaurus']['StartHTML']="
 <BR>
@@ -95,7 +95,7 @@ $template['searchResult']['Book']['StartHTML']="
 $template['searchResult']['Book']['ProcessHTML']="<b><FONT COLOR='blue'>\$bookName </FONT></b><br>";
 $template['searchResult']['Book']['EndHTML']="";
 $template['searchResult']['Chapter']['StartHTML']="";
-$template['searchResult']['Chapter']['ProcessHTML']="<i><a href='readBible.php?version=\$version&book=\$bookName&chapter=\$ChapterNo'>Chapter  \$ChapterNo </a></i> ";
+$template['searchResult']['Chapter']['ProcessHTML']="<i><a href='readbible.php?version=\$version&book=\$bookName&chapter=\$ChapterNo'>Chapter  \$ChapterNo </a></i> ";
 $template['searchResult']['Chapter']['EndHTML']="";
 $template['searchResult']['Verse']['StartHTML']="
 <BLOCKQUOTE>
