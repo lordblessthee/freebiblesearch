@@ -64,6 +64,11 @@ Creating new templates:
 
 -------------------------------------------------------------------------------------
 FAQ:
+Q:- I am getting Maximum execution time exceeded fatal error during installation.
+A:- This error comes when the time required to execute the installation script
+    exceeds due to time required to write the bibles. Increase the value of 
+    $flatFilesExecutionLimitPerBible    or $databaseExecutionLimitPerBible given 
+    in install.php at around line 26 if you face such problems.
 
 . 
 

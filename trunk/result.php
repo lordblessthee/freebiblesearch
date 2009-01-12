@@ -47,6 +47,12 @@ else
 			$scan_dir=$bibleDatabase.$_GET['bibleVersion']."db/";
 			$databasetable = "bibledb_".$_GET['bibleVersion'];
 		}
+		else
+		{
+		echo "<br><br><br>Bible version not specified cannot continue";
+		require_once('data/'.$installprefix.'footer.inc.php');
+		exit;
+		}
 	}
 }
 

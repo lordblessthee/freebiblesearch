@@ -33,7 +33,7 @@ function writeConfigFile($configVars,$installprefix)
 			$configStr .="\$".$configVars['varName'][$i]."=".$configVars['value'][$i].";"."\n";
         }
         $defaultConfigModified=str_replace("<%main%>",$configStr,$defaultConfig);
-        file_put_contents("data/".$installprefix."config.inc.php",$defaultConfigModified);
+        myfile_put_contents("data/".$installprefix."config.inc.php",$defaultConfigModified);
 
 }
 
@@ -50,9 +50,9 @@ function writeHeaderFooterFile($installprefix)
 {
         
 	$defaultHeader=file_get_contents("template/default.header.inc.php");
-	file_put_contents("data/".$installprefix."header.inc.php",$defaultHeader);
+	myfile_put_contents("data/".$installprefix."header.inc.php",$defaultHeader);
 	$defaultFooter=file_get_contents("template/default.footer.inc.php");
-	file_put_contents("data/".$installprefix."footer.inc.php",$defaultFooter);
+	myfile_put_contents("data/".$installprefix."footer.inc.php",$defaultFooter);
 }
 
 /**
@@ -70,7 +70,7 @@ function writeTemplateFile($templateName,$installprefix)
 {
         
 	$defaultTemplate=file_get_contents("template/".$templateName."/"."default.template.inc.php");
-	file_put_contents("data/".$installprefix."template.inc.php",$defaultTemplate);
+	myfile_put_contents("data/".$installprefix."template.inc.php",$defaultTemplate);
 	if(is_dir("template/".$templateName."/images/"))
 	{
 		$handler = opendir("data/".$installprefix."images");
@@ -94,5 +94,39 @@ function writeTemplateFile($templateName,$installprefix)
 		}
 		closedir($handler);
 	}
+}
+
+/**
+ *
+ * This function was added to make file_put_contents
+ * comaptaible with PHP v4 file_put_contents is not available
+ * on PHP v4
+ *
+ * @param $filename string
+ * @param $data string
+ *
+ */ 
+
+function myfile_put_contents($filename, $data)
+{
+	if (!function_exists('file_put_contents')) 
+	{
+        $f = @fopen($filename, 'w');
+        if (!$f) 
+		{
+            return false;
+        } 
+		else 
+		{
+            $bytes = fwrite($f, $data);
+            fclose($f);
+            return $bytes;
+        }
+    }
+	else
+	{
+		return file_put_contents($filename,$data);
+	}
+
 }
 ?>

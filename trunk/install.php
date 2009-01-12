@@ -21,7 +21,12 @@ if(isset($_POST['InstallSubmit']))
 {
 	$noerror=true;
 	$message="";
+	/**Increase this time if you are getting Maximum execution time exceeded Fatal Error
+	 on Flat File based installation**/
 	$flatFilesExecutionLimitPerBible=45;
+	/**Increase this time if you are getting Maximum execution time exceeded Fatal Error
+	 on MySQL database based installation**/
+	$databaseExecutionLimitPerBible=45;
 	if(isset($_POST['installMethod']))
 	{
 		$installMethod = $_POST['installMethod'];
@@ -81,7 +86,6 @@ if(isset($_POST['InstallSubmit']))
 			$configVars['value'][]="\"DB\"";
 			$configIndex=count($configVars['varName'])-1;
 			$configVars['Comments'][$configIndex][]="The Database TYPE";
-			$databaseExecutionLimitPerBible=45;
 			set_time_limit(count($_POST['biblename'])*$databaseExecutionLimitPerBible);
 			$databaseInfo['databasehost'] = $_POST['dbhost'];
 			$databaseInfo['databasename'] = $_POST['dbname'];
