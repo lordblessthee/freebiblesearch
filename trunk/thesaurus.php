@@ -22,10 +22,11 @@ require_once('data/'.$installprefix.'config.inc.php');
 if(isset($_GET['word']))
 {
 	$word=$_GET['word'];
-    $url="http://wordnetweb.princeton.edu/perl/webwn?c=1&sub=Change&o2=&o0=&o7=&o5=&o1=1&o6=&o4=&o3=&i=-1&h=00&s=$word";
+    
+	$url="http://wordnetweb.princeton.edu/perl/webwn?s=".$word."&sub=Search+WordNet&o2=&o0=&o7=&o5=&o1=&o6=&o4=&o3=&h=00";
 }
 else
-	$url="http://wordnetweb.princeton.edu/perl/webwn?c=1&sub=Change&o2=&o0=&o7=&o5=&o1=1&o6=&o4=&o3=&i=-1&h=00&s=test";
+	$url="http://wordnetweb.princeton.edu/perl/webwn?s="."test"."&sub=Search+WordNet&o2=&o0=&o7=&o5=&o1=&o6=&o4=&o3=&h=00";
 
 if(isset($_GET['version']))
 {
@@ -86,5 +87,6 @@ foreach($synonymsarr as $synonyms)
 echo $template['thesaurus']['Word']['EndHTML'];
 echo $template['thesaurus']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
+
 
 ?>
