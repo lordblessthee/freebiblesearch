@@ -49,7 +49,7 @@ else
 		}
 		else
 		{
-			if(!preview)
+			if(!$preview)
 			{
 				echo "<br><br><br>Bible version not specified cannot continue";
 				require_once('data/'.$installprefix.'footer.inc.php');
