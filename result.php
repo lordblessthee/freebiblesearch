@@ -56,6 +56,27 @@ else
 				exit;
 			}
 		}
+		$versionfound=false;
+		if(!$preview)
+		{
+			for($i=0;$i<count($BibleVersion);$i++)
+			{
+				if($BibleVersion[$i]["shortname"]==$version)
+				{
+					$versionfound=true;
+					break;
+				}
+			}
+
+			if(!$versionfound)
+			{
+
+				echo "<br><br><br>Bible version not present";
+				require_once('data/'.$installprefix.'footer.inc.php');
+				exit;
+	
+			}
+		}
 	}
 }
 
