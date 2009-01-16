@@ -122,6 +122,13 @@ if(isset($_GET['book']))
 	if($databaseType=="FILE")
 	{
 		$allChapters=listFilesInDir($scanDir.$bookName);
+		if($allChapters===false)
+		{
+			require_once('data/'.$installprefix.'header.inc.php');
+			echo "<br><br><br>Bible Book not present";
+			require_once('data/'.$installprefix.'footer.inc.php');
+			exit;
+		}
 	}
 
 
@@ -158,8 +165,23 @@ if(isset($_GET['book']))
 			if($databaseType=="DB")
 			{
 				$allChapters=getChaptersFromDB($databaseInfo,$bookName,$ChapterNo);
+				if($allChapters===false)
+				{
+					require_once('data/'.$installprefix.'header.inc.php');
+					echo "<br><br><br>Bible Book not present";
+					require_once('data/'.$installprefix.'footer.inc.php');
+					exit;
+
+				}
 			}
 	
+if($ChapterNo > count($allChapters)||$ChapterNo <1)
+{
+	require_once('data/'.$installprefix.'header.inc.php');
+	echo "<br><br><br>Bible Chapter not present";
+	require_once('data/'.$installprefix.'footer.inc.php');
+	exit;
+}
 
     echo $currentTemplate['StartHTML'];
 	$currentTemplate['BookIndex']['StartHTML'];
@@ -323,6 +345,11 @@ function listFilesInDir($start_dir)
 			
   $files = array();
   $dir = opendir($start_dir);
+  if($dir===false)
+  {
+	  return false;
+  }
+
   while(($myfile = readdir($dir)) !== false)
   {
     if($myfile != '.' && $myfile != '..' && !is_file($myfile) && $myfile != 'resource.frk' && !eregi('^Icon',$myfile) )
@@ -358,7 +385,14 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	$Books=getBookIndex();
 	$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
     mysql_select_db($databasename);
-	$bookId=(int)$Books[$bookName];
+	if(!isset($Books[$bookName]))
+	{
+		return false;
+	}
+	else
+	{
+		$bookId=(int)$Books[$bookName];
+	}
 	if($chapterNo!==false)
 	{
 		$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
