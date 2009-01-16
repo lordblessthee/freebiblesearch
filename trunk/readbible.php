@@ -77,7 +77,7 @@ else
 
 		if(!$versionfound)
 		{
-
+                require_once('data/'.$installprefix.'header.inc.php');
 				echo "<br><br><br>Bible version not present";
 				require_once('data/'.$installprefix.'footer.inc.php');
 				exit;
