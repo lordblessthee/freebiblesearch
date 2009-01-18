@@ -123,7 +123,14 @@ function getCategoryName($aCategoryNumber)
 	$Category["1"]="Old Testament";
 	$Category["10"]="Pauline Epistles";
 	$Category["7"]="Wisdom Books";
-	return $Category[$aCategoryNumber];
+	if(isset($Category[$aCategoryNumber]))
+	{
+		return $Category[$aCategoryNumber];
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /**
@@ -457,7 +464,7 @@ function createAllinChapterSQL($classGrepSearch,$varArray)
 		$sql .= "UNION ALL ";
 	}
 	$sql=substr($sql,0,(strlen($sql)-10));
-    $sql.=") AS tbl  GROUP BY tbl.bookid,tbl.chapterno  HAVING COUNT(*) = ".count($searchArray).") as tbl2 inner join $databasetable on tbl2.bookid=bibledb_kjv.bookid and tbl2.chapterno=bibledb_kjv.chapterno" ;
+    $sql.=") AS tbl  GROUP BY tbl.bookid,tbl.chapterno  HAVING COUNT(*) = ".count($searchArray).") as tbl2 inner join $databasetable on tbl2.bookid=$databasetable.bookid and tbl2.chapterno=$databasetable.chapterno" ;
 
 return $sql;
 

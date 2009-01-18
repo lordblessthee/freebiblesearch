@@ -100,11 +100,11 @@ else {
 
 if(isset($_POST['spanbegin'])) {
 	
-    	$start_span = $_POST['spanbegin'];
+    	$start_span = (int)$_POST['spanbegin'];
 }
 
 if(isset($_POST['spanend'])) {
-    $end_span = $_POST['spanend'];
+    $end_span = (int)$_POST['spanend'];
 }
 if(isset($_POST['limit'])) {
     $limit = $_POST['limit'];
@@ -120,7 +120,13 @@ if(isset($_POST['casesensitive'])) {
     $caseSensitive = $_POST['casesensitive'];
 }
 
-
+$diagnosticMessage="";
+if(!checkParameters())
+{
+	echo $diagnosticMessage;
+	require_once('data/'.$installprefix.'footer.inc.php');
+    exit;
+}
 
 // creates an array of all the provided extentions
 $classGrepSearch->createArrayOfExtentions(",",$filesWithExtentionsToBeSearched);
@@ -170,6 +176,78 @@ echo $template['searchResult']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 
 
+function checkParameters()
+{
+	global $limit,$start_span,$end_span,$limit,$bookset,$searchType,$diagnosticMessage,$Book;
+	$searchTypeValueArray=array("all","any","phrase","allInFile");
+    $searchTypeValueFound=false;
+	foreach($searchTypeValueArray as $searchTypeValue)
+	{
+		if($searchType==$searchTypeValue)
+		{
+			$searchTypeValueFound=true;
+			break;
+		}
+
+	}
+	if(!$searchTypeValueFound)
+	{
+		$diagnosticMessage="Invalid search type <br>";
+		return false;
+	}
+
+	$limitValueArray=array("none","bookset","span");
+    $limitValueFound=false;
+	foreach($limitValueArray as $limitValue)
+	{
+		if($limit==$limitValue)
+		{
+			$limitValueFound=true;
+			break;
+		}
+
+	}
+	if(!$limitValueFound)
+	{
+		$diagnosticMessage="Invalid search range <br>";
+		return false;
+	}
+
+    if($limit=="span")
+	{
+		if(($start_span < 1)||($start_span > count($Book["All"])))
+		{
+			$diagnosticMessage="Invalid search range <br>";
+			return false;
+		}
+
+		if(($end_span < 1)||($end_span > count($Book["All"])))
+		{
+			$diagnosticMessage="Invalid search range <br>";
+			return false;
+		}
+
+		if(($start_span >$end_span))
+		{
+			$diagnosticMessage="Invalid search range <br>";
+			return false;
+		}
+
+	}
+
+	if($limit=="bookset")
+	{
+		if(getCategoryName($bookset)===false)
+		{
+			$diagnosticMessage="Invalid search category <br>";
+			return false;
+		}
+	}
+	
+
+	return true;
+}
+
 /**
  *
  * function to create HTML from database
@@ -217,6 +295,12 @@ if($limit=="bookset")
 }
 else
 {
+	if($limit=="none")
+	{
+		$start_span="1";
+		$end_span="66";
+
+	}
 	$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookNames($start_span,$end_span),false);
 }
 
