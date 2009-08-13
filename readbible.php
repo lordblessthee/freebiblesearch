@@ -129,6 +129,7 @@ if(isset($_GET['book']))
 			require_once('data/'.$installprefix.'footer.inc.php');
 			exit;
 		}
+		sort($allChapters);
 	}
 
 
@@ -279,6 +280,7 @@ foreach($allBookList as $bookName)
 		if($databaseType=="FILE")
 		{
 			$allChapters=listFilesInDir($scanDir.$bookName);
+			sort($allChapters);
 		}
 		else
 			if($databaseType=="DB")
