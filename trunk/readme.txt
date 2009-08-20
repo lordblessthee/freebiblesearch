@@ -70,7 +70,7 @@ The CSV bibles provided with this release have the following format
 
 Line No 1:<Bible short name e.g kjv >,<Bible long name e.g "KING JAMES VERSION">
 Line No 2:---Blank Line----
-Line No 3:<2 digit bible book id e.g 01 for Genesis 02 for exodus and so on>,<Bible book name e.g Genesis>,<3 digit Bible book chapter no e.g 003,007,029 etc >,<Bible book name e.g Genesis>,<3 digit Bible  verse no e.g 003,007,029 etc >,<Verse text in Quotes>
+Line No 3:<2 digit bible book id e.g 01 for Genesis 02 for exodus and so on>,<Bible book name e.g Genesis>,<3 digit Bible book chapter no e.g 003,007,029 etc >,<3 digit Bible  verse no e.g 003,007,029 etc >,<Verse text in Quotes>
 Line No 4:--Same format as above and so on---
 
 
