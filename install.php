@@ -27,11 +27,19 @@ if(isset($_POST['InstallSubmit']))
 	/**Increase this time if you are getting Maximum execution time exceeded Fatal Error
 	 on MySQL database based installation**/
 	$databaseExecutionLimitPerBible=45;
+	unset($configVars);
+	if(isset($_POST['parallelbiblescount'])&&($_POST['parallelbiblescount']>1))
+	{
+		$configVars['varName'][]="parallelBibles";
+		$configVars['value'][]=$_POST['parallelbiblescount'];
+		$configIndex=count($configVars['varName'])-1;
+		$configVars['Comments'][$configIndex][]="No of Parallel bibles to search or lookup";
+
+	}
 	if(isset($_POST['installMethod']))
 	{
 		$installMethod = $_POST['installMethod'];
 	}
-	unset($configVars);
 	if($installMethod=="FlatFiles")
 	{
                 $configVars['varName'][]="databaseType";
@@ -270,7 +278,19 @@ echo "&nbsp;&nbsp;Database Table Prefix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type=\"text\" name=\"dbtableprefix\" size=\"25\" value=\"".$databaseInfo['tableprefix']."\" ><br></td></tr>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
-echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></td></tr><br>";
+if(count($bibleList) > 1)
+{
+	echo "<tr><td>3.</td><td>&nbsp;</td><td><font color=green><b>How many Bibles you want to search in a single search</b></font>
+	<input type=\"text\" name=\"parallelbiblescount\" size=\"10\" value=\"".(isset($_POST['parallelbiblescount'])?$_POST['parallelbiblescount']:count($bibleList))."\" ><br></td></tr>";
+	echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
+	$sectionCount = 4;
+}
+else
+{
+	$sectionCount = 3;
+}
+
+echo "<tr><td>$sectionCount.</td><td>&nbsp;</td><td><font color=green><b>Select Template</b>(Click on the screenshot to see a preview )</font><br></td></td></tr><br>";
 	$template_directory = "./template";
 	$template = opendir($template_directory) or die("fail to open");
 	$count=0;

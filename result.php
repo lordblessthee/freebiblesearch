@@ -19,14 +19,12 @@ else
 require_once('data/'.$installprefix.'template.inc.php');
 require_once('data/'.$installprefix.'config.inc.php');
 $title="Search Result";
-require_once('data/'.$installprefix.'header.inc.php');
-echo $template['searchResult']['StartHTML'];
 require_once('ClassGrepSearch.inc.php');
 require_once('functions.php');
 $classGrepSearch = ClassGrepSearch::getInstance();
 
 $filesWithExtentionsToBeSearched = "txt"; 
-
+$bibleVersionArray=array();
 
 if(isset($_GET['path'])) {
     $scan_dir = $_GET['path'];
@@ -35,19 +33,20 @@ else
 {
    if(isset($_POST['bibleVersion'])) 
 	{
-	    $version = $_POST['bibleVersion'];
-		$scan_dir=$bibleDatabase.$_POST['bibleVersion']."db/";
-		$databasetable = "bibledb_".$_POST['bibleVersion'];
+	    $versions = $_POST['bibleVersion'];
+		//exit();
+//		$scan_dir=$bibleDatabase.$_POST['bibleVersion']."db/";
+		//$databasetable = "bibledb_".$_POST['bibleVersion'];
 	}
 	else
 	{
 		if(isset($_GET['bibleVersion'])) 
 		{
-			$version = $_GET['bibleVersion'];
-			$scan_dir=$bibleDatabase.$_GET['bibleVersion']."db/";
-			$databasetable = "bibledb_".$_GET['bibleVersion'];
+			$versions = explode("|",$_GET['bibleVersion']);
+//			$scan_dir=$bibleDatabase.$_GET['bibleVersion']."db/";
+			//$databasetable = "bibledb_".$_GET['bibleVersion'];
 		}
-		else
+		/**else
 		{
 			if(!$preview)
 			{
@@ -76,7 +75,7 @@ else
 				exit;
 	
 			}
-		}
+		}**/
 	}
 }
 
@@ -123,16 +122,22 @@ if(isset($_POST['casesensitive'])) {
 $diagnosticMessage="";
 if(!checkParameters())
 {
-	echo $diagnosticMessage;
+	$errorMessage = $diagnosticMessage;
+	echo $template['searchResult']['ErrorMessage']['StartHTML'];
+	eval("echo \"".$template['searchResult']['ErrorMessage']['ProcessHTML']."\";");
+	echo $template['searchResult']['ErrorMessage']['EndHTML'];
+    echo $template['searchResult']['StartHTML'];
+	echo $template['searchResult']['EndHTML'];
 	require_once('data/'.$installprefix.'footer.inc.php');
-    exit;
+    exit();
 }
-
+require_once('data/'.$installprefix.'header.inc.php');
+echo $template['searchResult']['StartHTML'];
 // creates an array of all the provided extentions
 $classGrepSearch->createArrayOfExtentions(",",$filesWithExtentionsToBeSearched);
 $classGrepSearch->setSearchType($searchType);
 $classGrepSearch->setSearchString($searchString);
-$classGrepSearch->setScanDir($scan_dir);
+//$classGrepSearch->setScanDir($scan_dir);
 $classGrepSearch->setCaseSensitive(($caseSensitive=="yes")?true:false);
 
 
@@ -152,14 +157,16 @@ else
 		$databaseInfo['tableprefix'] = $dbTablePrefix;
 		$databaseInfo['databaseusername'] =$dbUser;
 		$databaseInfo['databasepassword'] = $dbPassword;
-		$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
+		//$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
 		executeFromDB($classGrepSearch,$databaseInfo);
 
 	}
 	else
 		if($databaseType == "FILE")
 		{
-			executeFromFile($classGrepSearch);
+
+				executeFromFile($classGrepSearch,$versions);
+			
 		}
 
 
@@ -178,7 +185,49 @@ require_once('data/'.$installprefix.'footer.inc.php');
 
 function checkParameters()
 {
-	global $limit,$start_span,$end_span,$limit,$bookset,$searchType,$diagnosticMessage,$Book;
+	global $limit,$start_span,$end_span,$limit,$bookset,$searchType,$diagnosticMessage,$Book,$preview,
+		$BibleVersion,$versions,$bibleVersionArray,$sampleBibleVersion;
+	$versionfound =false;
+	if(!isset($versions)&&!$preview)
+	{
+		$diagnosticMessage="Bible version not specified cannot continue<br>";
+		return false;
+
+	}
+	if($preview)
+	{
+		$bibleVersionArray = $sampleBibleVersion;
+	}
+	else
+	{
+		foreach($versions as $version)
+		{
+			if($version =="")
+			{
+				continue;
+			}
+			for($i=0;$i<count($BibleVersion);$i++)
+			{
+				if($BibleVersion[$i]["shortname"]==$version)
+				{
+					$versionfound=true;
+					$bibleVersionArray[]=$BibleVersion[$i];
+					break;
+				}
+			}
+			if(!$versionfound)
+			{
+				break;
+			}
+		}
+
+		if(!$versionfound)
+		{
+			$diagnosticMessage="Bible version  $version not found<br>";
+			return false;
+		}
+	}
+
 	$searchTypeValueArray=array("all","any","phrase","allInFile");
     $searchTypeValueFound=false;
 	foreach($searchTypeValueArray as $searchTypeValue)
@@ -260,20 +309,33 @@ function checkParameters()
 function executeFromDB($classGrepSearch,$databaseInfo)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
-		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$keyWordList,
-		$template;
-
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$versions,$keyWordList,
+		$template,$BibleVersion,$bibleVersionArray;
 	$classGrepSearch->createSearchArray($searchString);
+	$bibShortnameFunc = function($bibVersion) {
+    return $bibVersion['shortname'];
+    };
+
 	$keyWordArray=explode(",",$keyWordList);
+	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
 	foreach($keyWordArray as $keyword)
 	{
 		eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
 	}
 	echo $template['searchResult']['KeywordList']['EndHTML'];
-	$htmllines = createLinesFromDB($databaseInfo,$classGrepSearch);
-	echo "<BR>".$htmllines;
+	foreach($bibleVersionArray as $bibVersion)
+	{
+		$version = $bibVersion['shortname'];
+		$bibleName=$bibVersion['name'];
+		$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
+		echo $template['searchResult']['BibleVersion']['StartHTML'];
+		eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
+		echo $template['searchResult']['BibleVersion']['EndHTML'];
+		$htmllines = createLinesFromDB($databaseInfo,$classGrepSearch);
+		echo "<BR>".$htmllines;
 
+	}
 }
 
 /**
@@ -288,85 +350,102 @@ function executeFromFile($classGrepSearch)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$keyWordList,
-		$template,$version;
-if($limit=="bookset")
-{
-	$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookCategory(getCategoryName($bookset)),false);
-}
-else
-{
-	if($limit=="none")
-	{
-		$start_span="1";
-		$end_span="66";
+		$template,$bibleDatabase,$BibleVersion,$bibleVersionArray;
 
+
+
+	$bibShortnameFunc = function($bibVersion) {
+    return $bibVersion['shortname'];
+    };
+	$keyWordArray=explode(",",$keyWordList);
+	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
+	echo $template['searchResult']['KeywordList']['StartHTML'];
+	foreach($keyWordArray as $keyword)
+	{
+		eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
 	}
-	$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookNames($start_span,$end_span),false);
-}
-
-
-
-$keyWordArray=explode(",",$keyWordList);
-echo $template['searchResult']['KeywordList']['StartHTML'];
-foreach($keyWordArray as $keyword)
-{
-	eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
-}
-echo $template['searchResult']['KeywordList']['EndHTML'];
-$arrayOfFilenames = $classGrepSearch->getarrayOfFilenames();
-$bookName="";
-$previousBookName="";
-$prevChapterNo=0;
-$bookFirsttime=true;
-for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
-    $fileName = str_replace($_SERVER['DOCUMENT_ROOT'],"",$arrayOfFilenames[$i]);
-    $linkName = str_replace($_SERVER['DOCUMENT_ROOT'],"Z:",$arrayOfFilenames[$i]);
-	$ChapterNo = (int)substr($fileName,-7,3);
-	$bookNameStart=strlen($fileName)-strrpos($fileName,"/");
-	$bookName = substr($fileName,-$bookNameStart+1,$bookNameStart-8);
-    $classGrepSearch->setGlobalCount(0);
-      $htmllines = createLinesFromFile($scan_dir.$fileName,$classGrepSearch);
-	if($htmllines !="")
+	echo $template['searchResult']['KeywordList']['EndHTML'];
+	foreach($bibleVersionArray as $bibVersion)
 	{
-		if($previousBookName!=$bookName)
-		{
-			if($bookFirsttime)
-			{
-				echo $template['searchResult']['Book']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
-				echo	$template['searchResult']['Chapter']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-				$bookFirsttime=false;
+		$bibleName=$bibVersion['name'];
+		$version=$bibVersion['shortname'];
 
-			}
-			else
-			{
-				echo $template['searchResult']['Chapter']['EndHTML'];
-				echo $template['searchResult']['Book']['EndHTML'];
-				echo $template['searchResult']['Book']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
-				echo $template['searchResult']['Chapter']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-			}
+		echo $template['searchResult']['BibleVersion']['StartHTML'];
+		eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
+		echo $template['searchResult']['BibleVersion']['EndHTML'];
+		$scan_dir=$bibleDatabase.$version."db/";
+		$classGrepSearch->setScanDir($scan_dir);
+		$classGrepSearch->initializeArrayOfFilenames();
+		if($limit=="bookset")
+		{
+			$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookCategory(getCategoryName($bookset)),false);
 		}
 		else
-			if($ChapterNo!=$prevChapterNo)
+		{
+			if($limit=="none")
 			{
-				echo $template['searchResult']['Chapter']['EndHTML'];
-				echo $template['searchResult']['Chapter']['StartHTML'];
-				eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
-					
-			}
-		echo $template['searchResult']['Verse']['StartHTML'];
-		echo $htmllines;
-		echo $template['searchResult']['Verse']['EndHTML'];
-		$previousBookName=$bookName;
-		$prevChapterNo=$ChapterNo;
-	}
+				$start_span="1";
+				$end_span="66";
 
-}
-echo $template['searchResult']['Chapter']['EndHTML'];
-echo $template['searchResult']['Book']['EndHTML'];
+			}
+			$fileCounter = $classGrepSearch->readDirSubdirs($scan_dir,getBookNames($start_span,$end_span),false);
+		}
+		$arrayOfFilenames = $classGrepSearch->getarrayOfFilenames();
+		$bookName="";
+		$previousBookName="";
+		$prevChapterNo=0;
+		$bookFirsttime=true;
+		for($i=0,$j=0;$i<sizeof($arrayOfFilenames);$i++) {
+			$fileName = str_replace($_SERVER['DOCUMENT_ROOT'],"",$arrayOfFilenames[$i]);
+			$linkName = str_replace($_SERVER['DOCUMENT_ROOT'],"Z:",$arrayOfFilenames[$i]);
+			$ChapterNo = (int)substr($fileName,-7,3);
+			$bookNameStart=strlen($fileName)-strrpos($fileName,"/");
+			$bookName = substr($fileName,-$bookNameStart+1,$bookNameStart-8);
+			$classGrepSearch->setGlobalCount(0);
+			$htmllines = createLinesFromFile($scan_dir.$fileName,$classGrepSearch);
+			if($htmllines !="")
+			{
+				if($previousBookName!=$bookName)
+				{
+					if($bookFirsttime)
+					{
+						echo $template['searchResult']['Book']['StartHTML'];
+						eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+						echo	$template['searchResult']['Chapter']['StartHTML'];
+						eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+						$bookFirsttime=false;
+
+					}
+					else
+					{
+						echo $template['searchResult']['Chapter']['EndHTML'];
+						echo $template['searchResult']['Book']['EndHTML'];
+						echo $template['searchResult']['Book']['StartHTML'];
+						eval("echo \"".$template['searchResult']['Book']['ProcessHTML']."\";");
+						echo $template['searchResult']['Chapter']['StartHTML'];
+						eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+					}
+				}
+				else
+					if($ChapterNo!=$prevChapterNo)
+					{
+						echo $template['searchResult']['Chapter']['EndHTML'];
+						echo $template['searchResult']['Chapter']['StartHTML'];
+						eval("echo \"".$template['searchResult']['Chapter']['ProcessHTML']."\";");
+						
+					}
+				echo $template['searchResult']['Verse']['StartHTML'];
+				echo $htmllines;
+				echo $template['searchResult']['Verse']['EndHTML'];
+				$previousBookName=$bookName;
+				$prevChapterNo=$ChapterNo;
+			}
+
+		}
+		$htmllines="";
+		echo $template['searchResult']['Chapter']['EndHTML'];
+		echo $template['searchResult']['Book']['EndHTML'];
+	}
 
 }
 
@@ -381,18 +460,29 @@ echo $template['searchResult']['Book']['EndHTML'];
 function executeFromSample($classGrepSearch)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
-		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$version,$keyWordList,
-		$template,$version;
+		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$keyWordList,
+		$template,$bibleVersionArray;
 	$classGrepSearch->createSearchArray($searchString);
+	$bibShortnameFunc = function($bibVersion) {
+    return $bibVersion['shortname'];
+    };
 	$keyWordArray=explode(",",$keyWordList);
+	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
 	foreach($keyWordArray as $keyword)
 	{
 		eval("echo \"".$template['searchResult']['KeywordList']['ProcessHTML']."\";");
 	}
 	echo $template['searchResult']['KeywordList']['EndHTML'];
-	$htmllines = createLinesFromSample($classGrepSearch);
-	echo "<BR>".$htmllines;
+	foreach($bibleVersionArray as $bibleVersion)
+	{
+		$bibleName=$bibleVersion['name'];
+		echo $template['searchResult']['BibleVersion']['StartHTML'];
+		eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
+		echo $template['searchResult']['BibleVersion']['EndHTML'];
+		$htmllines = createLinesFromSample($classGrepSearch);
+		echo "<BR>".$htmllines;
+	}
 
 }
 ?>

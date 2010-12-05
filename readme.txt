@@ -1,7 +1,7 @@
 /*******************************************/
 /* Free Bible Search PHP Script            */
 /* Readme                                  */
-/* Version 1.4 , GNU      India            */
+/* Version 1.5 , GNU      India            */
 /* Author Cinu Chacko                      */
 /* http://www.lordblessthee.com             */
 
@@ -36,7 +36,7 @@ Installation:
 Re-Installation:
 
 1) Delete the "data/config.inc.php" file.
-2) If you have a file based installation. Remove all all files from
+2) If you have a file based installation. Remove  all files from
    File database directory, (e.g bibledb/).
 3) Rerun the index.php script.
 4) You should see the installation page.

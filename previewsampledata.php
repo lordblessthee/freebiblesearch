@@ -4,6 +4,8 @@
  * File containing code sample data for preview
  */
 
+ $parallelBibles=6;
+
 // The Bible Full Name (THE AMPLIFIED BIBLE)
 $sampleBibleVersion[0]["name"]="THE AMPLIFIED BIBLE";
 // The Bible Short Name (ab)
@@ -29,6 +31,12 @@ $sampleBibleVersion[5]["name"]="THE MESSAGE TRANSLATION";
 // The Bible Short Name (tmt)
 $sampleBibleVersion[5]["shortname"]="tmt";
 
+$samplePostedVersion[0] ="ab";
+$samplePostedVersion[1] ="kjv";
+$samplePostedVersion[2] ="niv";
+$samplePostedVersion[3] ="nkjv";
+$samplePostedVersion[4] ="nlt";
+$samplePostedVersion[5] ="tmt";
 
 $sampleBookChapters['Genesis']=array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50);
 
@@ -161,7 +169,6 @@ $sampleBookChapters['3 John']=array(1);
 $sampleBookChapters['Jude']=array(1);
 
 $sampleBookChapters['Revelation']=array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22);
-
 
 $sampleVerses[1][0]=1;
 $sampleVerses[1][1]="The LORD is my shepherd; I shall not want.";
@@ -296,6 +303,46 @@ $sampleSearch[29][0]=65;
 $sampleSearch[29][1]=1;
 $sampleSearch[29][2]=21;
 $sampleSearch[29][3]="Keep yourselves in the love of God, looking for the mercy of our Lord Jesus Christ unto eternal life.";
+$sampleLookupString = "Psalms 23,John 16:33";
+$sampleLookupChapter["Psalms23"][0]="001 A Psalm of David. The LORD is my shepherd; I shall not want. ";
+$sampleLookupChapter["Psalms23"][1]="002 He maketh me to lie down in green pastures: he leadeth me beside the still waters. ";
+$sampleLookupChapter["Psalms23"][2]="003 He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake. ";
+$sampleLookupChapter["Psalms23"][3]="004 Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me. ";
+$sampleLookupChapter["Psalms23"][4]="005 Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over. ";
+$sampleLookupChapter["Psalms23"][5]="006 Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever. ";
+$sampleLookupChapter["John16"][0]="001 These things have I spoken unto you, that ye should not be offended. ";
+$sampleLookupChapter["John16"][1]="002 They shall put you out of the synagogues: yea, the time cometh, that whosoever killeth you will think that he doeth God service. ";
+$sampleLookupChapter["John16"][2]="003 And these things will they do unto you, because they have not known the Father, nor me. ";
+$sampleLookupChapter["John16"][3]="004 But these things have I told you, that when the time shall come, ye may remember that I told you of them. And these things I said not unto you at the beginning, because I was with you. ";
+$sampleLookupChapter["John16"][4]="005 But now I go my way to him that sent me; and none of you asketh me, Whither goest thou? ";
+$sampleLookupChapter["John16"][5]="006 But because I have said these things unto you, sorrow hath filled your heart. ";
+$sampleLookupChapter["John16"][6]="007 Nevertheless I tell you the truth; It is expedient for you that I go away: for if I go not away, the Comforter will not come unto you; but if I depart, I will send him unto you. ";
+$sampleLookupChapter["John16"][7]="008 And when he is come, he will reprove the world of sin, and of righteousness, and of judgment: ";
+$sampleLookupChapter["John16"][8]="009 Of sin, because they believe not on me; ";
+$sampleLookupChapter["John16"][9]="010 Of righteousness, because I go to my Father, and ye see me no more; ";
+$sampleLookupChapter["John16"][10]="011 Of judgment, because the prince of this world is judged. ";
+$sampleLookupChapter["John16"][11]="012 I have yet many things to say unto you, but ye cannot bear them now. ";
+$sampleLookupChapter["John16"][12]="013 Howbeit when he, the Spirit of truth, is come, he will guide you into all truth: for he shall not speak of himself; but whatsoever he shall hear, that shall he speak: and he will shew you things to come. ";
+$sampleLookupChapter["John16"][13]="014 He shall glorify me: for he shall receive of mine, and shall shew it unto you. ";
+$sampleLookupChapter["John16"][14]="015 All things that the Father hath are mine: therefore said I, that he shall take of mine, and shall shew it unto you. ";
+$sampleLookupChapter["John16"][15]="016 A little while, and ye shall not see me: and again, a little while, and ye shall see me, because I go to the Father. ";
+$sampleLookupChapter["John16"][16]="017 Then said some of his disciples among themselves, What is this that he saith unto us, A little while, and ye shall not see me: and again, a little while, and ye shall see me: and, Because I go to the Father? ";
+$sampleLookupChapter["John16"][17]="018 They said therefore, What is this that he saith, A little while? we cannot tell what he saith. ";
+$sampleLookupChapter["John16"][18]="019 Now Jesus knew that they were desirous to ask him, and said unto them, Do ye inquire among yourselves of that I said, A little while, and ye shall not see me: and again, a little while, and ye shall see me? ";
+$sampleLookupChapter["John16"][19]="020 Verily, verily, I say unto you, That ye shall weep and lament, but the world shall rejoice: and ye shall be sorrowful, but your sorrow shall be turned into joy. ";
+$sampleLookupChapter["John16"][20]="021 A woman when she is in travail hath sorrow, because her hour is come: but as soon as she is delivered of the child, she remembereth no more the anguish, for joy that a man is born into the world. ";
+$sampleLookupChapter["John16"][21]="022 And ye now therefore have sorrow: but I will see you again, and your heart shall rejoice, and your joy no man taketh from you. ";
+$sampleLookupChapter["John16"][22]="023 And in that day ye shall ask me nothing. Verily, verily, I say unto you, Whatsoever ye shall ask the Father in my name, he will give it you. ";
+$sampleLookupChapter["John16"][23]="024 Hitherto have ye asked nothing in my name: ask, and ye shall receive, that your joy may be full. ";
+$sampleLookupChapter["John16"][24]="025 These things have I spoken unto you in proverbs: but the time cometh, when I shall no more speak unto you in proverbs, but I shall shew you plainly of the Father. ";
+$sampleLookupChapter["John16"][25]="026 At that day ye shall ask in my name: and I say not unto you, that I will pray the Father for you: ";
+$sampleLookupChapter["John16"][26]="027 For the Father himself loveth you, because ye have loved me, and have believed that I came out from God. ";
+$sampleLookupChapter["John16"][27]="028 I came forth from the Father, and am come into the world: again, I leave the world, and go to the Father. ";
+$sampleLookupChapter["John16"][28]="029 His disciples said unto him, Lo, now speakest thou plainly, and speakest no proverb. ";
+$sampleLookupChapter["John16"][29]="030 Now are we sure that thou knowest all things, and needest not that any man should ask thee: by this we believe that thou camest forth from God. ";
+$sampleLookupChapter["John16"][30]="031 Jesus answered them, Do ye now believe? ";
+$sampleLookupChapter["John16"][31]="032 Behold, the hour cometh, yea, is now come, that ye shall be scattered, every man to his own, and shall leave me alone: and yet I am not alone, because the Father is with me. ";
+$sampleLookupChapter["John16"][32]="033 These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world. ";
 $sampleSynonymsArray[0][0]="abiding";
 $sampleSynonymsArray[0][1]="ageless";
 $sampleSynonymsArray[0][2]="always";
