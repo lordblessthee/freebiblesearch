@@ -17,11 +17,15 @@ $template['readBible']['ShowBooks']['StartHTML']="
 $template['readBible']['ShowBooks']['EndHTML']="</B>";
 $template['readBible']['ShowBooks']['Book']['StartHTML']="
 <FONT 
-face=Verdana size=3><BR><BR>
+face=Verdana size=3>
 <BLOCKQUOTE>
   <P align=left>";
  $template['readBible']['ShowBooks']['Book']['ProcessHTML']=" <br><a href='readbible.php?version=\$version&book=\$bookName'> \$bookName</a><br> ";
  $template['readBible']['ShowBooks']['Book']['EndHTML']="</P></BLOCKQUOTE></FONT>";
+ $template['readBible']['ShowBooks']['BibleVersion']['StartHTML']="
+<P><FONT face=Verdana size=4>";
+$template['readBible']['ShowBooks']['BibleVersion']['ProcessHTML']="<b><FONT COLOR='blue'>\$bibleName</FONT></b><br>";
+$template['readBible']['ShowBooks']['BibleVersion']['EndHTML']="</FONT></P>";
 $template['readBible']['ShowBooks']['ChapterLinks']['StartHTML']="";
 $template['readBible']['ShowBooks']['ChapterLinks']['ProcessHTML']=" [<a href='readbible.php?version=\$version&book=\$bookName&chapter=\$chapterNo'>\$chapterNo</a>] ";
 $template['readBible']['ShowBooks']['ChapterLinks']['EndHTML']="<br><br>";
@@ -33,6 +37,10 @@ $template['readBible']['ShowVerses']['StartHTML']="
 <a href=\"advancedsearch.php\">Advanced Search</a> | <a href=\"passagelookup.php\">Passage Lookup</a> | <a href=\"readbible.php\">Read the Bible</a><br>
 <b>";
 $template['readBible']['ShowVerses']['EndHTML']="</b>";
+$template['readBible']['ShowVerses']['BibleVersion']['StartHTML']="
+<P><FONT face=Verdana size=4>";
+$template['readBible']['ShowVerses']['BibleVersion']['ProcessHTML']="<b><FONT COLOR='blue'>\$bibleName</FONT></b><br>";
+$template['readBible']['ShowVerses']['BibleVersion']['EndHTML']="</FONT></P>";
 $template['readBible']['ShowVerses']['BookIndex']['StartHTML']="";
 $template['readBible']['ShowVerses']['BookIndex']['ProcessHTML']="
 <BR>
@@ -152,5 +160,20 @@ $template['LookupResult']['EndHTML']="";
 $template['LookupResult']['VerseListMessage']['StartHTML']="<BR><BR><b><FONT face=Verdana  size=3>Referred Passage : ";
 $template['LookupResult']['VerseListMessage']['ProcessHTML']="\$verseListMessage ;";
 $template['LookupResult']['VerseListMessage']['EndHTML']="</FONT></b><BR>";
-
+$template['LookupResult']['BibleVersion']['StartHTML']="
+<P><FONT face=Verdana size=4>";
+$template['LookupResult']['BibleVersion']['ProcessHTML']="<b><FONT COLOR='blue'>\$bibleName</FONT></b><br>";
+$template['LookupResult']['BibleVersion']['EndHTML']="</FONT></P>";
+$template['LookupResult']['Book']['StartHTML']="
+<P><FONT face=Verdana size=3>";
+$template['LookupResult']['Book']['ProcessHTML']="<b><FONT COLOR='blue'>\$bookName </FONT></b><br>";
+$template['LookupResult']['Book']['EndHTML']="</FONT></P>";
+$template['LookupResult']['Chapter']['StartHTML']="";
+$template['LookupResult']['Chapter']['ProcessHTML']="<i><a href='readbible.php?version=\$version&book=\$bookName&chapter=\$ChapterNo'>Chapter  \$ChapterNo </a></i> ";
+$template['LookupResult']['Chapter']['EndHTML']="";
+$template['LookupResult']['Verse']['StartHTML']="
+<BLOCKQUOTE>
+  <P align=justify><FONT face=Verdana size=3>";
+$template['LookupResult']['Verse']['ProcessHTML']=" v\$verseNo \$verseText <BR> ";
+$template['LookupResult']['Verse']['EndHTML']="</P></FONT></BLOCKQUOTE>";
 ?>
