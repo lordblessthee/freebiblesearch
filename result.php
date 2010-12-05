@@ -426,7 +426,7 @@ function executeFromSample($classGrepSearch)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$keyWordList,
-		$template,$bibleVersionArray;
+		$template,$bibleVersionArray,$version;
 	$classGrepSearch->createSearchArray($searchString);
 	$bibShortnameFunc = function($bibVersion) {
     return $bibVersion['shortname'];
@@ -442,6 +442,7 @@ function executeFromSample($classGrepSearch)
 	foreach($bibleVersionArray as $bibleVersion)
 	{
 		$bibleName=$bibleVersion['name'];
+		$version = $bibleVersion['shortname'];
 		echo $template['searchResult']['BibleVersion']['StartHTML'];
 		eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
 		echo $template['searchResult']['BibleVersion']['EndHTML'];

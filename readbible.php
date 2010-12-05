@@ -64,51 +64,49 @@ else
 {
 	$version=$_GET['version'];
 	$versionfound=false;
-	if(!$preview)
-	{
-		for($i=0;$i<count($BibleVersion);$i++)
-		{
-			if($BibleVersion[$i]["shortname"]==$version)
-			{
-				$versionfound=true;
-				break;
-			}
-		}
-
-		if(!$versionfound)
-		{
-				$errorMessage = "Bible version $version not present";
-				$title=$errorMessage;
-				require_once('data/'.$installprefix.'header.inc.php');
-				echo $template['readBible']['ErrorMessage']['StartHTML'];
-				eval("echo \"".$template['readBible']['ErrorMessage']['ProcessHTML']."\";");
-				echo $template['readBible']['ErrorMessage']['EndHTML'];
-				echo $template['readBible']['General']['StartHTML'];
-				echo $template['readBible']['General']['EndHTML'];
-				require_once('data/'.$installprefix.'footer.inc.php');
-				exit();
-	
-		}
-	}
 	if($preview)
 	{
+		$BibleVersion=$sampleBibleVersion;
+	}
+	for($i=0;$i<count($BibleVersion);$i++)
+	{
+		if($BibleVersion[$i]["shortname"]==$version)
+		{
+			$versionfound=true;
+			$bibleName = $BibleVersion[$i]["name"];
+			break;
+		}
+	}
+
+	if(!$versionfound)
+	{
+			$errorMessage = "Bible version $version not present";
+			$title=$errorMessage;
+			require_once('data/'.$installprefix.'header.inc.php');
+			echo $template['readBible']['ErrorMessage']['StartHTML'];
+			eval("echo \"".$template['readBible']['ErrorMessage']['ProcessHTML']."\";");
+			echo $template['readBible']['ErrorMessage']['EndHTML'];
+			echo $template['readBible']['General']['StartHTML'];
+			echo $template['readBible']['General']['EndHTML'];
+			require_once('data/'.$installprefix.'footer.inc.php');
+			exit();
+
+	}
+	if($databaseType=="FILE")
+	{
+		$scanDir=$bibleDatabase.$version."db/";
 	}
 	else
-		if($databaseType=="FILE")
+		if($databaseType=="DB")
 		{
-			$scanDir=$bibleDatabase.$version."db/";
+			$databasetable = "bibledb_".$version;
+			$databaseInfo['databasehost'] = $dbHost;
+			$databaseInfo['databasename'] = $dbName;
+			$databaseInfo['tableprefix'] = $dbTablePrefix;
+			$databaseInfo['databaseusername'] =$dbUser;
+			$databaseInfo['databasepassword'] = $dbPassword;
+			$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
 		}
-		else
-			if($databaseType=="DB")
-			{
-				$databasetable = "bibledb_".$version;
-				$databaseInfo['databasehost'] = $dbHost;
-				$databaseInfo['databasename'] = $dbName;
-				$databaseInfo['tableprefix'] = $dbTablePrefix;
-				$databaseInfo['databaseusername'] =$dbUser;
-				$databaseInfo['databasepassword'] = $dbPassword;
-				$databaseInfo['databasetable'] = $databaseInfo['tableprefix'].$version;
-			}
 
 
 	if(isset($template['readBible']['ShowBooks']['ChapterLinks'])) 
@@ -187,6 +185,10 @@ else
 		echo $currentTemplate['BookIndex']['StartHTML'];
 		eval("echo \"".$currentTemplate['BookIndex']['ProcessHTML']."\";");
 		echo $currentTemplate['BookIndex']['EndHTML'];
+		echo $currentTemplate['BibleVersion']['StartHTML'];
+		eval("echo \"".$currentTemplate['BibleVersion']['ProcessHTML']."\";");
+		echo $currentTemplate['BibleVersion']['EndHTML'];
+		echo $currentTemplate['Book']['StartHTML'];
 		if($showChapterLinks)
 		{
 
@@ -252,6 +254,9 @@ else
 		$currentTemplate=$template['readBible']['ShowBooks'];
 		$allBookList=getBookNames($start_span,$end_span);
 		echo $currentTemplate['StartHTML'];
+		echo $currentTemplate['BibleVersion']['StartHTML'];
+		eval("echo \"".$currentTemplate['BibleVersion']['ProcessHTML']."\";");
+		echo $currentTemplate['BibleVersion']['EndHTML'];
 		echo $currentTemplate['Book']['StartHTML'];
 		foreach($allBookList as $bookName)
 		{

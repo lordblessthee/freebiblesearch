@@ -28,7 +28,7 @@ echo $template['LookupForm']['StartHTML'];
     
 <h3>Enter passage for lookup</h3>
 
-Example "John 3:16"<br />
+Example "John 3:16;John 16:33,Psalms 23:1-23:6"<br />
  <input type="text" name="lookup" value="" size="60" /><br /> 
  <h3>Select version(s)</h3>
 
