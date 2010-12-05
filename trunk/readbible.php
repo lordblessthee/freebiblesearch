@@ -57,8 +57,8 @@ if(!isset($_GET['version']))
 			
 		}
 	}
-	$currentTemplate['Version']['EndHTML'];
-	$currentTemplate['EndHTML'];
+	echo $currentTemplate['Version']['EndHTML'];
+	echo $currentTemplate['EndHTML'];
 }
 else
 {
@@ -77,14 +77,19 @@ else
 
 		if(!$versionfound)
 		{
-                require_once('data/'.$installprefix.'header.inc.php');
-				echo "<br><br><br>Bible version not present";
+				$errorMessage = "Bible version $version not present";
+				$title=$errorMessage;
+				require_once('data/'.$installprefix.'header.inc.php');
+				echo $template['readBible']['ErrorMessage']['StartHTML'];
+				eval("echo \"".$template['readBible']['ErrorMessage']['ProcessHTML']."\";");
+				echo $template['readBible']['ErrorMessage']['EndHTML'];
+				echo $template['readBible']['General']['StartHTML'];
+				echo $template['readBible']['General']['EndHTML'];
 				require_once('data/'.$installprefix.'footer.inc.php');
-				exit;
+				exit();
 	
 		}
 	}
-	
 	if($preview)
 	{
 	}
@@ -106,58 +111,66 @@ else
 			}
 
 
-if(isset($template['readBible']['ShowBooks']['ChapterLinks'])) 
-{
-	$showChapterLinks = $template['readBible']['ShowBooks']['ChapterLinks'];
-}
-else
-{
-	$showChapterLinks=false;  
-}
-
-if(isset($_GET['book'])) 
-{
-    $bookName = $_GET['book'];
-	$currentTemplate=$template['readBible']['ShowVerses'];
-	if($databaseType=="FILE")
+	if(isset($template['readBible']['ShowBooks']['ChapterLinks'])) 
 	{
-		$allChapters=listFilesInDir($scanDir.$bookName);
-		if($allChapters===false)
-		{
-			require_once('data/'.$installprefix.'header.inc.php');
-			echo "<br><br><br>Bible Book not present";
-			require_once('data/'.$installprefix.'footer.inc.php');
-			exit;
-		}
-		sort($allChapters);
-	}
-
-
-	if(isset($template['readBible']['ShowVerses']['ShowChapterLinks'])) 
-	{
-		$showChapterLinks = $template['readBible']['ShowVerses']['ShowChapterLinks'];
+		$showChapterLinks = $template['readBible']['ShowBooks']['ChapterLinks'];
 	}
 	else
 	{
 		$showChapterLinks=false;  
 	}
-	if(isset($_GET['chapter'])) 
-	{
-		$ChapterNo = (int)$_GET['chapter'];
-			
-	}
-	else
-	{
-		$ChapterNo = 1;
 
-	}
-	$title=$bookName." ".$ChapterNo;
-	require_once('data/'.$installprefix.'header.inc.php');
-	if($preview)
+	if(isset($_GET['book'])) 
 	{
-		$allChapters=getChaptersFromSample($bookName,$chapterNo);
-	}
-	else
+		$bookName = $_GET['book'];
+		$currentTemplate=$template['readBible']['ShowVerses'];
+		$chapterCount = $BibleChapterInfo[$BookIndex[$bookName]]["ChapterCount"];
+		if(!isset($BookIndex[$bookName]))
+		{
+			$errorMessage = "Bible Book not present";
+			$title=$errorMessage;
+			require_once('data/'.$installprefix.'header.inc.php');
+			echo $template['readBible']['ErrorMessage']['StartHTML'];
+			eval("echo \"".$template['readBible']['ErrorMessage']['ProcessHTML']."\";");
+			echo $template['readBible']['ErrorMessage']['EndHTML'];
+			echo $template['readBible']['General']['StartHTML'];
+			echo $template['readBible']['General']['EndHTML'];
+			require_once('data/'.$installprefix.'footer.inc.php');
+			exit();
+		}
+		if(isset($template['readBible']['ShowVerses']['ShowChapterLinks'])) 
+		{
+			$showChapterLinks = $template['readBible']['ShowVerses']['ShowChapterLinks'];
+		}
+		else
+		{
+			$showChapterLinks=false;  
+		}
+		if(isset($_GET['chapter'])) 
+		{
+			$ChapterNo = (int)$_GET['chapter'];
+				
+		}
+		else
+		{
+			$ChapterNo = 1;
+
+		}
+		if($ChapterNo > $chapterCount||$ChapterNo <1)
+		{
+			$errorMessage = "Bible Chapter $ChapterNo not present for the book $bookName ";
+			$title=$errorMessage;
+			require_once('data/'.$installprefix.'header.inc.php');
+			echo $template['readBible']['ErrorMessage']['StartHTML'];
+			eval("echo \"".$template['readBible']['ErrorMessage']['ProcessHTML']."\";");
+			echo $template['readBible']['ErrorMessage']['EndHTML'];
+			echo $template['readBible']['General']['StartHTML'];
+			echo $template['readBible']['General']['EndHTML'];
+			require_once('data/'.$installprefix.'footer.inc.php');
+			exit();
+		}
+		$title=$bookName." ".$ChapterNo;
+		require_once('data/'.$installprefix.'header.inc.php');
 		if($databaseType=="FILE")
 		{
 			$chapterText = $bookName.str_pad($ChapterNo,3,"0",STR_PAD_LEFT).".txt";
@@ -165,57 +178,27 @@ if(isset($_GET['book']))
 		else
 			if($databaseType=="DB")
 			{
-				$allChapters=getChaptersFromDB($databaseInfo,$bookName,$ChapterNo);
-				if($allChapters===false)
-				{
-					require_once('data/'.$installprefix.'header.inc.php');
-					echo "<br><br><br>Bible Book not present";
-					require_once('data/'.$installprefix.'footer.inc.php');
-					exit;
-
-				}
+				$verseTextArray=getChaptersFromDB($databaseInfo,$bookName,$ChapterNo);
 			}
 	
-if($ChapterNo > count($allChapters)||$ChapterNo <1)
-{
-	require_once('data/'.$installprefix.'header.inc.php');
-	echo "<br><br><br>Bible Chapter not present";
-	require_once('data/'.$installprefix.'footer.inc.php');
-	exit;
-}
 
-    echo $currentTemplate['StartHTML'];
-	$currentTemplate['BookIndex']['StartHTML'];
-	eval("echo \"".$currentTemplate['BookIndex']['ProcessHTML']."\";");
-	$currentTemplate['BookIndex']['EndHTML'];
-	if($showChapterLinks)
-	{
 
-		echo $currentTemplate['ChapterLinks']['StartHTML'];
-		foreach($allChapters as $chapterFile)
+		echo $currentTemplate['StartHTML'];
+		echo $currentTemplate['BookIndex']['StartHTML'];
+		eval("echo \"".$currentTemplate['BookIndex']['ProcessHTML']."\";");
+		echo $currentTemplate['BookIndex']['EndHTML'];
+		if($showChapterLinks)
 		{
-			if($preview)
+
+			echo $currentTemplate['ChapterLinks']['StartHTML'];
+			for($chapterNoLink=1;$chapterNoLink<=$chapterCount;$chapterNoLink++)
 			{
-				$chapterNoLink = $chapterFile;
+
+				eval("echo \"".$currentTemplate['ChapterLinks']['ProcessHTML']."\";");
+
 			}
-			else
-				if($databaseType=="FILE")
-				{
-					if(ereg ("([0-9]+)", $chapterFile, $chapters)) 
-					{
-						$chapterNoLink = (int)substr($chapterFile,-7,3);
-					}
-				}else
-					if($databaseType=="DB")
-					{
-						$chapterNoLink = $chapterFile;
-					}
-
-			eval("echo \"".$currentTemplate['ChapterLinks']['ProcessHTML']."\";");
-
+			echo $currentTemplate['ChapterLinks']['EndHTML'];
 		}
-		echo $currentTemplate['ChapterLinks']['EndHTML'];
-	}
 		echo $currentTemplate['Book']['StartHTML'];
 		eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
 		echo $currentTemplate['Chapter']['StartHTML'];
@@ -223,6 +206,7 @@ if($ChapterNo > count($allChapters)||$ChapterNo <1)
 		echo $currentTemplate['Verse']['StartHTML'];
 		if($preview)
 		{
+			$verseTextArray=getVersesFromSample($bookName,$chapterNo);
 			foreach($verseTextArray as $verseTextArr)
 			{
 				$verseNo=$verseTextArr[0];
@@ -257,70 +241,34 @@ if($ChapterNo > count($allChapters)||$ChapterNo <1)
 		echo $currentTemplate['Verse']['EndHTML'];
 		echo $currentTemplate['Chapter']['EndHTML'];
 		echo $currentTemplate['Book']['EndHTML'];
+		echo $currentTemplate['EndHTML'];
     
-}else
-{
-	$title="Bible Book Index";
-	require_once('data/'.$installprefix.'header.inc.php');
-$start_span=1;
-$end_span=66;
-$currentTemplate=$template['readBible']['ShowBooks'];
-$allBookList=getBookNames($start_span,$end_span);
-echo $currentTemplate['StartHTML'];
-echo $currentTemplate['Book']['StartHTML'];
-foreach($allBookList as $bookName)
-{
-	eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
-
-	if($preview)
+	}else
 	{
-		$allChapters=getChaptersFromSample($bookName,false);
-	}
-	else
-		if($databaseType=="FILE")
+		$title="Bible Book Index";
+		require_once('data/'.$installprefix.'header.inc.php');
+		$start_span=1;
+		$end_span=66;
+		$currentTemplate=$template['readBible']['ShowBooks'];
+		$allBookList=getBookNames($start_span,$end_span);
+		echo $currentTemplate['StartHTML'];
+		echo $currentTemplate['Book']['StartHTML'];
+		foreach($allBookList as $bookName)
 		{
-			$allChapters=listFilesInDir($scanDir.$bookName);
-			sort($allChapters);
-		}
-		else
-			if($databaseType=="DB")
-			{
-				$allChapters=getChaptersFromDB($databaseInfo,$bookName,false);
-			}
+			eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
+			$chapterCount = $BibleChapterInfo[$BookIndex[$bookName]]["ChapterCount"];
 			echo $currentTemplate['ChapterLinks']['StartHTML'];
 			
-			foreach($allChapters as $chapterFile)
+			for($chapterNo=1;$chapterNo<=$chapterCount;$chapterNo++)
 			{
-				if($preview)
-				{
-					$chapterNo = $chapterFile;
-				}
-				else
-					if($databaseType=="FILE")
-					{
-					
-						if(ereg ("([0-9]+)", $chapterFile, $chapters)) 
-						{
-							$chapterNo = (int)substr($chapterFile,-7,3);
-						}
-					}
-					else
-						if($databaseType=="DB")
-						{
-							$chapterNo = $chapterFile;
-						}
-					eval("echo \"".$currentTemplate['ChapterLinks']['ProcessHTML']."\";");
+				eval("echo \"".$currentTemplate['ChapterLinks']['ProcessHTML']."\";");
 			}
 			echo $currentTemplate['ChapterLinks']['EndHTML'];
-				
+		}
+		echo $currentTemplate['Book']['EndHTML'];
+		echo $currentTemplate['EndHTML'];
 
-	
-
-
-}
-echo $currentTemplate['Book']['EndHTML'];
-
-}
+	}
 
 }
 require_once('data/'.$installprefix.'footer.inc.php');
@@ -329,98 +277,8 @@ require_once('data/'.$installprefix.'footer.inc.php');
 
 /**
  *
- * function to get all files in a directory
- *  as a string array
- *
- * @param $start_dir string
- * 
- * return array
- */
-
-
-function listFilesInDir($start_dir)
-{
-        
-  /*
-  returns an array of files in $start_dir (not recursive)
-  */
-			
-  $files = array();
-  $dir = opendir($start_dir);
-  if($dir===false)
-  {
-	  return false;
-  }
-
-  while(($myfile = readdir($dir)) !== false)
-  {
-    if($myfile != '.' && $myfile != '..' && !is_file($myfile) && $myfile != 'resource.frk' && !eregi('^Icon',$myfile) )
-    {
-     $files[] = $myfile;
-    }
-  }
-  closedir($dir);
-  return $files;
-}
-
-/**
- *
- * function to return all chapterNos
- * in a book and also optional text
- * from database
- *
- * @param $databaseInfo array
- * @param $bookName string
- * @param  $chapterNo mixed
- * 
- * return array
- */
-
-function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
-{
-	global $verseTextArray;
-	$databasehost = $databaseInfo['databasehost'];
-	$databasename = $databaseInfo['databasename'];
-	$databasetable = $databaseInfo['databasetable'];
-	$databaseusername = $databaseInfo['databaseusername'];
-	$databasepassword = $databaseInfo['databasepassword'] ;
-	$Books=getBookIndex();
-	$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
-    mysql_select_db($databasename);
-	if(!isset($Books[$bookName]))
-	{
-		return false;
-	}
-	else
-	{
-		$bookId=(int)$Books[$bookName];
-	}
-	if($chapterNo!==false)
-	{
-		$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
-		$result=mysql_query($sql) or die(mysql_error());
-		$tempstring="";
-		while($row=mysql_fetch_array($result))
-		{
-			$verseTextArray[]=$row;
-		}
-	}
-	$sql = " SELECT distinct chapterno FROM ".$databasetable."  where bookid = $bookId;";
-	$result=mysql_query($sql) or die(mysql_error()); 
-	while($row=mysql_fetch_array($result))
-	{
-		$chapterNoArray[]=$row[0];
-
-	}
-	return $chapterNoArray;
-    
-}
-
-/**
- *
- * function to return all chapterNos
- * in a book and also optional text
- * from sample data
+ * function to return all Verses
+ * in a book 
  *
  * @param $bookName string
  * @param  $chapterNo mixed
@@ -428,9 +286,8 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
  * return array
  */
 
-function getChaptersFromSample($bookName,$chapterNo)
+function getVersesFromSample($bookName,$chapterNo)
 {
-	global $sampleBookChapters;
 	global $sampleVerses;
 	global $verseTextArray;
 	$Books=getBookIndex();
@@ -443,7 +300,7 @@ function getChaptersFromSample($bookName,$chapterNo)
 		}
 	}
 	
-	return $sampleBookChapters[$bookName];
+	return $verseTextArray;
     
 }
 ?>

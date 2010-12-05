@@ -17,7 +17,7 @@ else
 }
 require_once('data/'.$installprefix.'template.inc.php');
 require_once('data/'.$installprefix.'header.inc.php');
-echo $template['searchForm2']['StartHTML'];
+echo $template['advSearchForm']['StartHTML'];
 ?>
 
    
@@ -48,7 +48,7 @@ CaseSensitive
 
 <?php
 	require_once('data/'.$installprefix.'config.inc.php');
-	echo "<select name=\"bibleVersion\" >";
+	echo "<select name=\"bibleVersion[]\" >";
 	if($preview)
 	{
 		$BibleVersionPresent = $sampleBibleVersion;
@@ -68,6 +68,35 @@ CaseSensitive
 			
 	}
 	echo "</select>";
+	 if(isset($parallelBibles))
+	 {
+
+		 for($i=0;$i<($parallelBibles-1);$i++)
+		 {
+				echo "<br><br>";
+				echo "<select name=\"bibleVersion[]\" >";
+				if($preview)
+				{
+					$BibleVersionPresent = $sampleBibleVersion;
+				}
+				else
+				{
+					$BibleVersionPresent = $BibleVersion;
+				}
+				echo "<option value=\"\"" ;
+				echo "selected=\"selected\"";
+				echo ">Select Another Bible</option>";
+				foreach($BibleVersionPresent as $line)
+				{
+					echo "<option value=\"".$line["shortname"]."\"";
+					echo ">".$line["name"]."</option>";
+				
+				}
+				echo "</select>";
+
+		 }
+		 echo "<br>";
+	 }
 ?>
  <h3>Options:</h3>
 
@@ -282,7 +311,7 @@ Search from
  
 
 <?php 
-echo $template['searchForm2']['EndHTML'];
+echo $template['advSearchForm']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 ?>
 

@@ -19,17 +19,17 @@ else
 require_once('data/'.$installprefix.'template.inc.php');
 require_once('data/'.$installprefix.'header.inc.php');
 require_once('data/'.$installprefix.'config.inc.php');
-echo $template['searchForm']['StartHTML'];
+echo $template['LookupForm']['StartHTML'];
 ?>
    
     
- <form method="post" action="result.php" name="keysearch">
+ <form method="post" action="passageresult.php" name="lookup">
 
     
-<h3>Enter word(s) or phrase(s)</h3>
+<h3>Enter passage for lookup</h3>
 
-Example "Eternal Life"<br />
- <input type="text" name="search" value="" size="35" /><br /> 
+Example "John 3:16"<br />
+ <input type="text" name="lookup" value="" size="60" /><br /> 
  <h3>Select version(s)</h3>
 
 <?php 
@@ -84,16 +84,12 @@ Example "Eternal Life"<br />
  }
 ?>
 <br>
-<input type="hidden" name="limit" value="none" >
-<input type="hidden" name="searchtype" value="all" >
-<input type="hidden" name="spanbegin" value="1" >
-<input type="hidden" name="spanend" value="66" >
-  <input type="submit" value="Search for keyword or phrase" />
+  <input type="submit" value="Lookup passage" />
  
  </form>
  
 <?php 
-echo $template['searchForm']['EndHTML'];
+echo $template['LookupForm']['EndHTML'];
 require_once('data/'.$installprefix.'footer.inc.php');
 ?>
 

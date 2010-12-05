@@ -542,6 +542,21 @@ public function readFiles($path)
 
 /**
 *
+* function to initialize the array 
+* of file names
+*
+*/
+
+public function initializeArrayOfFilenames()
+{
+	$this->arrayOfFilenames = array();
+	$this->fileCounter = 0;
+
+	return $this->arrayOfFilenames ;
+}
+
+/**
+*
 * Miscellaneous setters and getters
 *
 **/
@@ -581,6 +596,7 @@ public function getarrayOfFilenames()
 {
 	return $this->arrayOfFilenames ;
 }
+
 
 public function setScanDir($aScanDir)
 {

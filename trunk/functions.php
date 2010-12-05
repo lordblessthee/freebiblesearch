@@ -306,6 +306,11 @@ function createLinesFromDB($databaseInfo,$classGrepSearch)
 		}
  
 	 }
+	if($htmlLines=="")
+	{
+		echo $template['searchResult']['NoMatches']['StartHTML'];
+		echo $template['searchResult']['NoMatches']['EndHTML'];
+	}
 	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
 	$htmlLines .=$template['searchResult']['Book']['EndHTML'];
 	  return $htmlLines;
@@ -470,6 +475,324 @@ return $sql;
 
 }
 
+/**
+ *
+ * function to return all chapterNos
+ * in a book and also optional text
+ * from database
+ *
+ * @param $databaseInfo array
+ * @param $bookName string
+ * @param  $chapterNo mixed
+ * 
+ * return array
+ */
+
+function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
+{
+//	global $verseTextArray;
+	$databasehost = $databaseInfo['databasehost'];
+	$databasename = $databaseInfo['databasename'];
+	$databasetable = $databaseInfo['databasetable'];
+	$databaseusername = $databaseInfo['databaseusername'];
+	$databasepassword = $databaseInfo['databasepassword'] ;
+	$Books=getBookIndex();
+	$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
+    mysql_select_db($databasename);
+	if(!isset($Books[$bookName]))
+	{
+		return false;
+	}
+	else
+	{
+		$bookId=(int)$Books[$bookName];
+	}
+	if($chapterNo!==false)
+	{
+		$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
+		$result=mysql_query($sql) or die(mysql_error());
+		$tempstring="";
+		while($row=mysql_fetch_array($result))
+		{
+			$verseTextArray[]=$row;
+		}
+	}
+	return $verseTextArray;
+    
+}
+
+/**
+ *
+ * function to return array of Passages
+ * from a lookup string
+ *
+ * @param $passageString string
+ * @param  $previousPassageInfo array
+ * 
+ * return array
+ */
+
+function getPassage($passageString,$previousPassageInfo)
+{
+		$bibleVerseParseInfo["passage"]=$passageString;
+		global $BookIndex,$BookAbbrIndex,$BibleChapterInfo,$Book;
+		$pattern="/^[\d]*[\s]*[a-zA-Z ]+/";
+		if(preg_match($pattern, trim($passageString), $matches))  
+		{
+			$bibleVerseParseInfo['givenBookName']=trim($matches[0]);
+			if(isset($BookIndex[trim($matches[0])]))
+			{
+				$indexOfBook=$BookIndex[trim($matches[0])];
+			}
+			else
+				if(isset($BookAbbrIndex[strtolower(trim($matches[0]))]))
+				{
+					$indexOfBook=$BookAbbrIndex[strtolower(trim($matches[0]))];
+				}
+				else
+				{
+					$bibleVerseParseInfo["status"]="error";
+					$bibleVerseParseInfo["statusMessage"]="Book ". $bibleVerseParseInfo['givenBookName']." Not Found";
+					return $bibleVerseParseInfo;
+				}
+				$bibleVerseParseInfo['bookIndex']=$indexOfBook;
+				$bibleVerseParseInfo['bookName']=$Book["All"][$indexOfBook];
+				$rest=substr(trim($passageString),strlen(trim($matches[0])));
+		}else 
+			if(isset($previousPassageInfo['bookIndex']))
+			{
+				$indexOfBook=$previousPassageInfo['bookIndex'];
+				$bibleVerseParseInfo['bookIndex']=$indexOfBook;
+				$bibleVerseParseInfo['givenBookName'] =$previousPassageInfo['givenBookName'];
+				$bibleVerseParseInfo['bookName']=$Book["All"][$indexOfBook];
+				$bibleVerseParseInfo['bookStatus']="calculated";
+				$pattern="/^\d/";
+				if(preg_match($pattern, trim($passageString), $matches))
+				{
+					$rest = $passageString;
+				}
+				else
+				{
+					$bibleVerseParseInfo["status"]="error";
+					$bibleVerseParseInfo["statusMessage"]="incorrect format for ".$bibleVerseParseInfo['bookName']." $passageString";
+					return $bibleVerseParseInfo;
+				}
+			}
+			else
+			{
+				$bibleVerseParseInfo["status"]="error";
+				$bibleVerseParseInfo["statusMessage"]="incorrect format for $passageString";
+				return $bibleVerseParseInfo;
+			}
+	  		
+			$verse = str_replace("\xe2\x80\x93", '-', strtolower($rest)); // endash -> - 
+
+			$nreg = '([0-9]+|[ivxlcm]+|['."\x90-\xAA"."\xD7]+)"; 
+			$reg = '/^'.$nreg.'\.?(\s*[:. ]\s*'.$nreg.')?(\s*-\s*'.$nreg.'\.?(\s*[:. ]\s*'.$nreg.')?)?/i'; 
+			if(!preg_match($reg, trim($verse), $matches)&&(!trim($rest)==""))
+			{
+				$bibleVerseParseInfo["status"]="error";
+				$bibleVerseParseInfo["statusMessage"]="incorrect format for ".$bibleVerseParseInfo['bookName']." $rest";
+				return $bibleVerseParseInfo;
+			}
+
+			$s_chap = num_conv($matches[1]); 
+			$s_vers = num_conv($matches[3]); 
+			$e_chap = num_conv($matches[5]); 
+			$e_vers = num_conv($matches[7]);
+	
+
+			if($bibleVerseParseInfo['bookStatus']=="calculated")
+			{
+
+				if(isset($previousPassageInfo['startVerse'])&&$previousPassageInfo['startVerseStatus']!="calculated"&&$previousPassageInfo['startVerseStatus']!="incorrect"
+					&&!$s_vers&&(!isset($previousPassageInfo['endVerse'])||$previousPassageInfo['endVerseStatus']=="calculated"))
+				{
+					$s_vers=$s_chap;
+					$s_chap = $previousPassageInfo['startChap'];
+
+				}
+
+				if(isset($previousPassageInfo['endVerse'])&&$previousPassageInfo['endVerseStatus']!="calculated"&&$previousPassageInfo['endVerseStatus']!="incorrect"
+					&&!$e_chap)
+				{
+					$s_vers=$s_chap;
+					$s_chap = $previousPassageInfo['endChap'];
+
+				}
+			}
+
+
+			if (!$s_chap)
+			{
+				$s_chap = 1;
+				$bibleVerseParseInfo['startChapStatus']="calculated";
+			}
+
+			if (!$e_chap&&$s_vers) { // eg 15 or 15:30 
+				$e_chap = $s_chap; 
+				$e_vers = $s_vers; 
+				$bibleVerseParseInfo['endChapStatus']="calculated";
+				$bibleVerseParseInfo['endVerseStatus']="calculated";
+			} 
+			elseif ($s_vers and $e_chap and !$e_vers) { // eg 15:30-35 
+				$e_vers = $e_chap; 
+				$e_chap = $s_chap; 
+				$bibleVerseParseInfo['endChapStatus']="calculated";
+				$bibleVerseParseInfo['endVerseStatus']="calculated";
+			}
+			else
+				if(!$e_chap&&!$s_vers)
+				{
+					$e_chap = $s_chap;
+					$s_vers = 1;
+					$bibleVerseParseInfo['endChapStatus']="calculated";
+					$bibleVerseParseInfo['startVerseStatus']="calculated";
+				}
+
+
+			if (!$s_vers)
+			{
+				$s_vers = 1;
+				$bibleVerseParseInfo['startVerseStatus']="calculated";
+			}
+    if($e_chap < $s_chap)
+	{
+		$bibleVerseParseInfo['endChapStatus']="incorrect";
+		$bibleVerseParseInfo["status"]="error";
+		$bibleVerseParseInfo["statusMessage"]="end Chapter Cannot be less than start chapter for ".$bibleVerseParseInfo['bookName']." $s_chap-$e_chap";
+		return $bibleVerseParseInfo;
+	}
+	if(($s_chap==$e_chap)&&$e_vers&&($e_vers< $s_vers))
+	{
+		$bibleVerseParseInfo['endVerseStatus']="incorrect";
+		$bibleVerseParseInfo["status"]="error";
+		$bibleVerseParseInfo["statusMessage"]="end Verse Cannot be less than start Verse for ".$bibleVerseParseInfo['bookName']." $s_chap:$s_vers-$e_chap:$e_vers";
+		return $bibleVerseParseInfo;
+
+	}
+	if(!isset($BibleChapterInfo[$indexOfBook]["Chapter"][$s_chap]))
+	{
+		$bibleVerseParseInfo['startChapStatus']="incorrect";
+		$bibleVerseParseInfo["status"]="error";
+		$bibleVerseParseInfo["statusMessage"]="start Chapter not found for ".$bibleVerseParseInfo['bookName']." $s_chap";
+		return $bibleVerseParseInfo;
+	}
+   
+	if ($s_vers == 1 and !$e_vers)
+	{
+		$e_vers = $BibleChapterInfo[$indexOfBook]["Chapter"][$e_chap]["NumVerse"];
+		$bibleVerseParseInfo['endVerseStatus']="calculated";
+		$bibleVerseParseInfo['startChap']=$s_chap;
+		$bibleVerseParseInfo['startVerse']=1;
+		$bibleVerseParseInfo['endChap']=$e_chap;
+		$bibleVerseParseInfo['endVerse']=$e_vers;
+		$bibleVerseParseInfo["status"]="ok";
+		return $bibleVerseParseInfo;
+	}
+	else 
+	{
+		if($BibleChapterInfo[$indexOfBook]["Chapter"][$s_chap]["NumVerse"]<$s_vers)
+		{
+			$bibleVerseParseInfo['startVerseStatus']="incorrect";
+			$bibleVerseParseInfo["status"]="error";
+			$bibleVerseParseInfo["statusMessage"]="start verse range exceeded for ".$bibleVerseParseInfo['bookName']." $s_chap:$s_vers";
+			return $bibleVerseParseInfo;
+		}
+
+		if($BibleChapterInfo[$indexOfBook]["Chapter"][$e_chap]["NumVerse"]<$e_vers)
+		{
+			$bibleVerseParseInfo['endVerseStatus']="incorrect";
+			$bibleVerseParseInfo["status"]="error";
+			$bibleVerseParseInfo["statusMessage"]="end verse range exceeded for ".$bibleVerseParseInfo['bookName']." $s_chap:$s_vers-$e_chap:$e_vers";
+			return $bibleVerseParseInfo;
+		}
+		$bibleVerseParseInfo['startChap']=$s_chap;
+		$bibleVerseParseInfo['startVerse']=$s_vers;
+		$bibleVerseParseInfo['endChap']=$e_chap;
+		$bibleVerseParseInfo['endVerse']=$e_vers;
+		$bibleVerseParseInfo["status"]="ok";
+		return $bibleVerseParseInfo;
+	}
+	  
+  }
+
+/**
+ *
+ * function to convert from 
+ * roman numerals to integer
+ *
+ * @param $r string
+ * 
+ * return integer
+ */
+  function roman_to_int($r) { 
+    $r = strtolower($r); 
+    $rvals = array('i'=>1, 'v'=>5, 'x'=>10, 'l'=>50, 'c'=>100, 'd'=>500, 'm'=>1000); 
+    $n = 0; 
+    for ($i = 0; $i < strlen($r); $i++) { 
+        if (($i == strlen($r) - 1) or ($rvals[$r[$i]] >= $rvals[$r[$i+1]])) 
+            $n += $rvals[$r[$i]]; 
+        else 
+            $n -= $rvals[$r[$i]]; 
+    } 
+    return $n; 
+} 
+
+
+/**
+ *
+ * function to convert from 
+ * hebrew numerals to integer
+ *
+ * @param $h string
+ * 
+ * return integer
+ */
+function hebrew_to_int($h) { 
+    $n = 0; 
+    for ($i = 0; $i < strlen($h); $i++) { 
+        $pos = ord($h{$i}) - 0x8f; 
+        switch($pos) { 
+            case 11: case 12: $n+=20; break; 
+            case 13: $n+=30; break; 
+            case 14: case 15: $n+=40; break; 
+            case 16: case 17: $n+=50; break; 
+            case 18: $n+=60; break; 
+            case 19: $n+=70; break; 
+            case 20: case 21: $n+=80; break; 
+            case 22: case 23: $n+=90; break; 
+            default: 
+              if ($pos <= 10) $n+=$pos; 
+              elseif ($pos <= 27) $n += ($pos-23)*100; 
+        } 
+    } 
+    return $n; 
+} 
+
+
+/**
+ *
+ * function to convert from 
+ * hebrew,roman numerals to integer
+ *
+ * @param $n string
+ * 
+ * return integer
+ */
+function num_conv($n) { 
+    if (!$n) 
+        return; 
+    if ($n{0} >= '0' and $n{0} <= '9') 
+        return intval($n); 
+    if ($n{0} <= 'z') { // assume Roman 
+        return roman_to_int(strtoupper($n)); 
+    } 
+    if ($n{0} == "\xD7") { // assume Hebrew unicode 
+        return hebrew_to_int($n); 
+    } 
+    die('Unknown number form.'); 
+}
 
 
 ?> 
