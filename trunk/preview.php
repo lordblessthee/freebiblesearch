@@ -38,10 +38,7 @@ if(!$showlinks)
 } 
 else 
 {  
-		$bibShortnameFunc = function($bibVersion) {
-    return $bibVersion['shortname'];
-    };
-    $version=implode("|",array_map($bibShortnameFunc,$sampleBibleVersion));
+    $version=implode("|",array_map("bibShortnameFunc",$sampleBibleVersion));
 	echo "<html>\n";
 	echo "<title>Preview Template $selectedTemplate</title>\n";
 	echo"<body>\n";

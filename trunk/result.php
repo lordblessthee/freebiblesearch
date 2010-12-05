@@ -277,12 +277,9 @@ function executeFromDB($classGrepSearch,$databaseInfo)
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$versions,$keyWordList,
 		$template,$BibleVersion,$bibleVersionArray,$version;
 	$classGrepSearch->createSearchArray($searchString);
-	$bibShortnameFunc = function($bibVersion) {
-    return $bibVersion['shortname'];
-    };
 
 	$keyWordArray=explode(",",$keyWordList);
-	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
+	$version=implode("|",array_map("bibShortnameFunc",$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
 	foreach($keyWordArray as $keyword)
 	{
@@ -319,11 +316,8 @@ function executeFromFile($classGrepSearch)
 
 
 
-	$bibShortnameFunc = function($bibVersion) {
-    return $bibVersion['shortname'];
-    };
 	$keyWordArray=explode(",",$keyWordList);
-	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
+	$version=implode("|",array_map("bibShortnameFunc",$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
 	foreach($keyWordArray as $keyword)
 	{
@@ -433,11 +427,8 @@ function executeFromSample($classGrepSearch)
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$keyWordList,
 		$template,$bibleVersionArray,$version;
 	$classGrepSearch->createSearchArray($searchString);
-	$bibShortnameFunc = function($bibVersion) {
-    return $bibVersion['shortname'];
-    };
 	$keyWordArray=explode(",",$keyWordList);
-	$version=implode("|",array_map($bibShortnameFunc,$bibleVersionArray));
+	$version=implode("|",array_map("bibShortnameFunc",$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
 	foreach($keyWordArray as $keyword)
 	{
