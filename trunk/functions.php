@@ -332,7 +332,7 @@ function createLinesFromSample($classGrepSearch)
 {
 	global $limit,$start_span,$end_span,$bookset;
 	global $searchStringStartTag,$searchStringEndTag,$template;
-	global $sampleSearch;
+	global $sampleSearch,$version;
 	$classGrepSearch->setGlobalCount(0);
 	$Books=getBooks();
 	$htmlLines="";
