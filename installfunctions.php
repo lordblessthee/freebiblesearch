@@ -129,4 +129,9 @@ function myfile_put_contents($filename, $data)
 	}
 
 }
+
+function bibShortnameFunc($bibVersion)
+{
+    return $bibVersion['shortname'];
+}
 ?>

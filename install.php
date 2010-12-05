@@ -126,6 +126,7 @@ if(isset($_POST['InstallSubmit']))
 				$bibleCount=0;
 				foreach($_POST['biblename'] as $biblename)
 				{
+					$biblename = stripslashes($biblename);
 					echo $biblename."<br>";
 					$tempResult = explode(",",$biblename);
 					$noerror=installDB($databaseInfo,$tempResult[0]);

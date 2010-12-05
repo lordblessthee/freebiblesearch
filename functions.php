@@ -795,4 +795,9 @@ function num_conv($n) {
 }
 
 
+function bibShortnameFunc($bibVersion)
+{
+    return $bibVersion['shortname'];
+};
+
 ?> 
