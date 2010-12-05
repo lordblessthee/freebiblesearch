@@ -17,7 +17,7 @@ Installation:
 
 1) Copy all files along with directories in a directory of your server.
 2) Make sure the bibles(e.g kjv.csv) are present in the "bibles" directory.Only 
-   1 bible are provided with this release. Please see Bible Format section for the
+   2 bible are provided with this release. Please see Bible Format section for the
    format of the bibles.
 3) Make sure the "data" directory has write permissions.
 4) You can make changes in the "template" directory including
