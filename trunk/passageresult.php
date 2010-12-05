@@ -102,10 +102,10 @@ foreach($bibleVersionArray as $bibVersion)
 {
 	$bibleName=$bibVersion['name'];
 	$version=$bibVersion['shortname'];
-	$currentTemplate=$template['readBible']['ShowVerses'];
-	echo $template['searchResult']['BibleVersion']['StartHTML'];
-	eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
-	echo $template['searchResult']['BibleVersion']['EndHTML'];
+	$currentTemplate=$template['LookupResult'];
+	echo $currentTemplate['BibleVersion']['StartHTML'];
+	eval("echo \"".$currentTemplate['BibleVersion']['ProcessHTML']."\";");
+	echo $currentTemplate['BibleVersion']['EndHTML'];
 	foreach($bibleVerseParseInfo as $parseInfo)
 	{
 

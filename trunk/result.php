@@ -34,48 +34,13 @@ else
    if(isset($_POST['bibleVersion'])) 
 	{
 	    $versions = $_POST['bibleVersion'];
-		//exit();
-//		$scan_dir=$bibleDatabase.$_POST['bibleVersion']."db/";
-		//$databasetable = "bibledb_".$_POST['bibleVersion'];
 	}
 	else
 	{
 		if(isset($_GET['bibleVersion'])) 
 		{
 			$versions = explode("|",$_GET['bibleVersion']);
-//			$scan_dir=$bibleDatabase.$_GET['bibleVersion']."db/";
-			//$databasetable = "bibledb_".$_GET['bibleVersion'];
 		}
-		/**else
-		{
-			if(!$preview)
-			{
-				echo "<br><br><br>Bible version not specified cannot continue";
-				require_once('data/'.$installprefix.'footer.inc.php');
-				exit;
-			}
-		}
-		$versionfound=false;
-		if(!$preview)
-		{
-			for($i=0;$i<count($BibleVersion);$i++)
-			{
-				if($BibleVersion[$i]["shortname"]==$version)
-				{
-					$versionfound=true;
-					break;
-				}
-			}
-
-			if(!$versionfound)
-			{
-
-				echo "<br><br><br>Bible version not present";
-				require_once('data/'.$installprefix.'footer.inc.php');
-				exit;
-	
-			}
-		}**/
 	}
 }
 
@@ -310,7 +275,7 @@ function executeFromDB($classGrepSearch,$databaseInfo)
 {
 	global $limit,$scan_dir,$start_span,$end_span,$bookset,
 		$filesWithExtentionsToBeSearched,$searchString,$databasetable,$versions,$keyWordList,
-		$template,$BibleVersion,$bibleVersionArray;
+		$template,$BibleVersion,$bibleVersionArray,$version;
 	$classGrepSearch->createSearchArray($searchString);
 	$bibShortnameFunc = function($bibVersion) {
     return $bibVersion['shortname'];
