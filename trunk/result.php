@@ -407,6 +407,11 @@ function executeFromFile($classGrepSearch)
 			}
 
 		}
+		if($htmllines=="")
+		{
+			echo $template['searchResult']['NoMatches']['StartHTML'];
+			echo $template['searchResult']['NoMatches']['EndHTML'];
+		}
 		$htmllines="";
 		echo $template['searchResult']['Chapter']['EndHTML'];
 		echo $template['searchResult']['Book']['EndHTML'];
