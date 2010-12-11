@@ -633,13 +633,17 @@ function getPassage($passageString,$previousPassageInfo)
 				$e_chap = $s_chap; 
 				$e_vers = $s_vers; 
 				$bibleVerseParseInfo['endChapStatus']="calculated";
+                $bibleVerseParseInfo['endChapStatusConvertedFrom']="startChapter";
 				$bibleVerseParseInfo['endVerseStatus']="calculated";
+				$bibleVerseParseInfo['endVerseStatusConvertedFrom']="startVerse";
 			} 
 			elseif ($s_vers and $e_chap and !$e_vers) { // eg 15:30-35 
 				$e_vers = $e_chap; 
 				$e_chap = $s_chap; 
 				$bibleVerseParseInfo['endChapStatus']="calculated";
+                $bibleVerseParseInfo['endChapStatusConvertedFrom']="startChapter";
 				$bibleVerseParseInfo['endVerseStatus']="calculated";
+				$bibleVerseParseInfo['endVerseStatusConvertedFrom']="endChapter";
 			}
 			else
 				if(!$e_chap&&!$s_vers)

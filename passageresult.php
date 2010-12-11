@@ -245,9 +245,15 @@ function getVerse($bibleParseInfo)
 
 		}
 		else
-			if($bibleParseInfo['endChapStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated")
+			if($bibleParseInfo['endChapStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated"&&$bibleParseInfo['endVerseStatusConvertedFrom']=="startVerse")
 			{
 				return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap'].":".$bibleParseInfo['startVerse'];
+
+			}
+			else
+			if($bibleParseInfo['endChapStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated"&&$bibleParseInfo['endVerseStatusConvertedFrom']=="endChapter")
+			{
+				return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap'].":".$bibleParseInfo['startVerse']."-".$bibleParseInfo['endVerse'];
 
 			}
 			else
