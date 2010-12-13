@@ -558,6 +558,7 @@ function getPassage($passageString,$previousPassageInfo)
 				$bibleVerseParseInfo['bookIndex']=$indexOfBook;
 				$bibleVerseParseInfo['bookName']=$Book["All"][$indexOfBook];
 				$rest=substr(trim($passageString),strlen(trim($matches[0])));
+				$rest = preg_replace('/^\./', '', trim($rest));
 		}else 
 			if(isset($previousPassageInfo['bookIndex']))
 			{
