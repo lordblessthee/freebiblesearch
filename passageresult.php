@@ -168,7 +168,7 @@ foreach($bibleVersionArray as $bibVersion)
 					$fileContents=array($ChapterNo,$verseTextArray);
 					$fileContentsStruct[] = $fileContents;
 				}
-				$fileContentsStruct[count($fileContentsStruct)-1][1]=array_slice($fileContentsStruct[0][1],0,(($parseInfo['endVerse']+1)-$parseInfo['startVerse']));
+				$fileContentsStruct[count($fileContentsStruct)-1][1]=array_slice($fileContentsStruct[count($fileContentsStruct)-1][1],0,(($parseInfo['endVerse']+1)-$parseInfo['startVerse']));
 				echo $currentTemplate['Book']['StartHTML'];
 				eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
 				foreach($fileContentsStruct as $chapterText)
