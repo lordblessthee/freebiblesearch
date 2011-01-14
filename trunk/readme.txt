@@ -1,7 +1,7 @@
 /*******************************************/
 /* Free Bible Search PHP Script            */
 /* Readme                                  */
-/* Version 1.7 , GNU      India            */
+/* Version 1.8 , GNU      India            */
 /* Author Cinu Chacko                      */
 /* http://www.lordblessthee.com             */
 
