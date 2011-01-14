@@ -683,6 +683,14 @@ function getPassage($passageString,$previousPassageInfo)
 		$bibleVerseParseInfo["statusMessage"]="start Chapter not found for ".$bibleVerseParseInfo['bookName']." $s_chap";
 		return $bibleVerseParseInfo;
 	}
+
+	if(!isset($BibleChapterInfo[$indexOfBook]["Chapter"][$e_chap]))
+	{
+		$bibleVerseParseInfo['endChapStatus']="incorrect";
+		$bibleVerseParseInfo["status"]="error";
+		$bibleVerseParseInfo["statusMessage"]="end Chapter not found for ".$bibleVerseParseInfo['bookName']." $e_chap";
+		return $bibleVerseParseInfo;
+	}
    
 	if ($s_vers == 1 and !$e_vers)
 	{
