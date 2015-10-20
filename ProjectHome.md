@@ -1,0 +1,1 @@
+Free Bible Search PHP Script, to include a Bible Search/Read facility for your site.
