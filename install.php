@@ -17,6 +17,13 @@ if(file_exists("data/config.inc.php"))
 		echo "Please remove data/config.inc.php for Reinstallation"."<br>";
 		exit;
 }
+$databaseInfo = [
+'databasename' => '',
+'databasehost' => '',
+'databaseusername' => '',
+'databasepassword' => '',
+'tableprefix' => ''
+];
 if(isset($_POST['InstallSubmit']))
 {
 	$noerror=true;
@@ -90,6 +97,7 @@ if(isset($_POST['InstallSubmit']))
 	}else
 		if($installMethod=="Database")
 		{
+		    $databaseInfo = [];
 			$configVars['varName'][]="databaseType";
 			$configVars['value'][]="\"DB\"";
 			$configIndex=count($configVars['varName'])-1;

@@ -17,6 +17,11 @@
 
 function writeConfigFile($configVars,$installprefix)
 {
+    
+        // Ensure the 'data' directory exists
+        if (!is_dir("data")) {
+            mkdir("data", 0755, true);
+        }
         
 		$defaultConfig=file_get_contents("template/default.config.inc.php");
         $configStr="";
@@ -48,6 +53,10 @@ function writeConfigFile($configVars,$installprefix)
 
 function writeHeaderFooterFile($installprefix)
 {
+// Ensure the 'data' directory exists
+if (!is_dir("data")) {
+mkdir("data", 0755, true);
+}
         
 	$defaultHeader=file_get_contents("template/default.header.inc.php");
 	myfile_put_contents("data/".$installprefix."header.inc.php",$defaultHeader);
@@ -68,6 +77,15 @@ function writeHeaderFooterFile($installprefix)
 
 function writeTemplateFile($templateName,$installprefix)
 {
+    
+    // Ensure the 'data/images' directory exists
+    if (!is_dir("data/" . $installprefix . "images")) {
+        mkdir("data/" . $installprefix . "images", 0755, true);
+    }
+    // Ensure the 'data/images' directory exists
+    if (!is_dir("data/".$installprefix."images")) {
+        mkdir("data/".$installprefix."images", 0755, true);
+    }
         
 	$defaultTemplate=file_get_contents("template/".$templateName."/"."default.template.inc.php");
 	myfile_put_contents("data/".$installprefix."template.inc.php",$defaultTemplate);
