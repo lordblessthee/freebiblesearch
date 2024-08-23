@@ -28,6 +28,7 @@ $classGrepSearch = ClassGrepSearch::getInstance();
 
 
 $verseTextArray =array();
+$txt = ''; // Initialize $txt to avoid "undefined variable" errors
 
 if(!isset($_GET['version']))
 {
@@ -217,27 +218,36 @@ else
 			}
 		}
 		else
-			if($databaseType=="FILE")
-			{
-				$file_path=$scanDir.$bookName."/".$chapterText;
-				$fileContents=file($file_path);
-				foreach($fileContents as $verseText)
-				{
-					$verseNo=(int)substr($verseText,0,strpos($verseText," "));
-					$verseText=substr($verseText,strpos($verseText," "));
-					$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
-				}
-			}
-			else
-				if($databaseType=="DB")
-				{
-					foreach($verseTextArray as $verseTextArr)
-					{
-						$verseNo=$verseTextArr[0];
-						$verseText=$verseTextArr[1];
-						$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
-					}
-				}
+            if ($databaseType == "FILE") {
+                $file_path = $scanDir . $bookName . "/" . $chapterText;
+                if (file_exists($file_path)) {
+                    $fileContents = file($file_path);
+                    foreach ($fileContents as $verseText) {
+                        $verseNo = (int)substr($verseText, 0, strpos($verseText, " "));
+                        $verseText = substr($verseText, strpos($verseText, " "));
+                        
+                        // Check if the required keys are set before using them
+                        $processHTMLVerse = isset($currentTemplate['Verse']['ProcessHTML']) ? $currentTemplate['Verse']['ProcessHTML'] : '';
+            
+                        // Safely use eval() with a return statement
+                        $txt .= eval("return \"" . $processHTMLVerse . "\";");
+                    }
+                } else {
+                    // Handle file not found case if necessary
+                    echo "File not found: $file_path";
+                }
+            } elseif ($databaseType == "DB") {
+                foreach ($verseTextArray as $verseTextArr) {
+                    $verseNo = isset($verseTextArr[0]) ? $verseTextArr[0] : 0;
+                    $verseText = isset($verseTextArr[1]) ? $verseTextArr[1] : '';
+            
+                    // Check if the required keys are set before using them
+                    $processHTMLVerse = isset($currentTemplate['Verse']['ProcessHTML']) ? $currentTemplate['Verse']['ProcessHTML'] : '';
+            
+                    // Safely use eval() with a return statement
+                    $txt .= eval("return \"" . $processHTMLVerse . "\";");
+                }
+            }
 
 		echo $txt;
 		echo $currentTemplate['Verse']['EndHTML'];

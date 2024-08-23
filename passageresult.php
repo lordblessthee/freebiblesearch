@@ -51,6 +51,8 @@ $verseArray= preg_split( $pattern, $lookupString ) ;
 $bibleVerseParseInfo =array();
 foreach($verseArray as $content)
 {
+    $parseInfo = [];
+    
 	$parseInfo = getPassage($content,$parseInfo);
 	if($parseInfo["status"]=="ok")
 	{
@@ -128,22 +130,36 @@ foreach($bibleVersionArray as $bibVersion)
 			$fileContentsStruct[count($fileContentsStruct)-1][1]=array_slice($fileContentsStruct[count($fileContentsStruct)-1][1],0,(($parseInfo['endVerse']+1)-$parseInfo['startVerse']));
 			echo $currentTemplate['Book']['StartHTML'];
 			eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
-			foreach($fileContentsStruct as $chapterText)
-			{
-				$ChapterNo=$chapterText[0];
-				echo $currentTemplate['Chapter']['StartHTML'];
-				eval("echo \"".$currentTemplate['Chapter']['ProcessHTML']."\";");
-				echo $currentTemplate['Verse']['StartHTML'];
-				foreach($chapterText[1] as $verseText)
-				{
-					$verseNo=(int)substr($verseText,0,strpos($verseText," "));
-					$verseText=substr($verseText,strpos($verseText," "));
-					$txt .=eval("echo \"".$currentTemplate['Verse']['ProcessHTML']."\";");
-					echo $txt;
-				}
-				echo $currentTemplate['Verse']['EndHTML'];
-				echo $currentTemplate['Chapter']['EndHTML'];
-			}
+            $txt = ''; // Initialize $txt to avoid "undefined variable" errors
+            
+            foreach ($fileContentsStruct as $chapterText) {
+                // Ensure that the required array keys are set before using them
+                $ChapterNo = isset($chapterText[0]) ? $chapterText[0] : '';
+                
+                // Use default values if array keys do not exist
+                $startHTMLChapter = isset($currentTemplate['Chapter']['StartHTML']) ? $currentTemplate['Chapter']['StartHTML'] : '';
+                $processHTMLChapter = isset($currentTemplate['Chapter']['ProcessHTML']) ? $currentTemplate['Chapter']['ProcessHTML'] : '';
+                $startHTMLVerse = isset($currentTemplate['Verse']['StartHTML']) ? $currentTemplate['Verse']['StartHTML'] : '';
+                $processHTMLVerse = isset($currentTemplate['Verse']['ProcessHTML']) ? $currentTemplate['Verse']['ProcessHTML'] : '';
+                $endHTMLVerse = isset($currentTemplate['Verse']['EndHTML']) ? $currentTemplate['Verse']['EndHTML'] : '';
+                $endHTMLChapter = isset($currentTemplate['Chapter']['EndHTML']) ? $currentTemplate['Chapter']['EndHTML'] : '';
+            
+                echo $startHTMLChapter;
+                eval("echo \"" . $processHTMLChapter . "\";");
+            
+                echo $startHTMLVerse;
+                foreach ($chapterText[1] as $verseText) {
+                    $verseNo = (int)substr($verseText, 0, strpos($verseText, " "));
+                    $verseText = substr($verseText, strpos($verseText, " "));
+            
+                    $txt = eval("return \"" . $processHTMLVerse . "\";"); // Use return to assign to $txt
+                    echo $txt;
+                }
+            
+                echo $endHTMLVerse;
+                echo $endHTMLChapter;
+            }
+
 			echo $currentTemplate['Book']['EndHTML'];
 		}
 		else
@@ -234,35 +250,30 @@ foreach($bibleVersionArray as $bibVersion)
 
 function getVerse($bibleParseInfo)
 {
-	if($bibleParseInfo['startVerseStatus']=="calculated"&&$bibleParseInfo['endChapStatus']=="calculated")
-	{
-		return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap']; 
-	}
-	else
-		if($bibleParseInfo['startVerseStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated")
-		{
-			return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap']."-".$bibleParseInfo['endChap'];
+    $startVerseStatus = isset($bibleParseInfo['startVerseStatus']) ? $bibleParseInfo['startVerseStatus'] : null;
+    $endChapStatus = isset($bibleParseInfo['endChapStatus']) ? $bibleParseInfo['endChapStatus'] : null;
+    $endVerseStatus = isset($bibleParseInfo['endVerseStatus']) ? $bibleParseInfo['endVerseStatus'] : null;
+    $endVerseStatusConvertedFrom = isset($bibleParseInfo['endVerseStatusConvertedFrom']) ? $bibleParseInfo['endVerseStatusConvertedFrom'] : null;
+    
+    $bookName = isset($bibleParseInfo['bookName']) ? $bibleParseInfo['bookName'] : '';
+    $startChap = isset($bibleParseInfo['startChap']) ? $bibleParseInfo['startChap'] : '';
+    $startVerse = isset($bibleParseInfo['startVerse']) ? $bibleParseInfo['startVerse'] : '';
+    $endChap = isset($bibleParseInfo['endChap']) ? $bibleParseInfo['endChap'] : '';
+    $endVerse = isset($bibleParseInfo['endVerse']) ? $bibleParseInfo['endVerse'] : '';
 
-		}
-		else
-			if($bibleParseInfo['endChapStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated"&&$bibleParseInfo['endVerseStatusConvertedFrom']=="startVerse")
-			{
-				return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap'].":".$bibleParseInfo['startVerse'];
-
-			}
-			else
-			if($bibleParseInfo['endChapStatus']=="calculated"&&$bibleParseInfo['endVerseStatus']=="calculated"&&$bibleParseInfo['endVerseStatusConvertedFrom']=="endChapter")
-			{
-				return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap'].":".$bibleParseInfo['startVerse']."-".$bibleParseInfo['endVerse'];
-
-			}
-			else
-			{
-				return $bibleParseInfo['bookName']." ".$bibleParseInfo['startChap'].":".$bibleParseInfo['startVerse']."-".$bibleParseInfo['endChap'].":".$bibleParseInfo['endVerse'];
-			}
-
-
+    if ($startVerseStatus == "calculated" && $endChapStatus == "calculated") {
+        return $bookName . " " . $startChap;
+    } elseif ($startVerseStatus == "calculated" && $endVerseStatus == "calculated") {
+        return $bookName . " " . $startChap . "-" . $endChap;
+    } elseif ($endChapStatus == "calculated" && $endVerseStatus == "calculated" && $endVerseStatusConvertedFrom == "startVerse") {
+        return $bookName . " " . $startChap . ":" . $startVerse;
+    } elseif ($endChapStatus == "calculated" && $endVerseStatus == "calculated" && $endVerseStatusConvertedFrom == "endChapter") {
+        return $bookName . " " . $startChap . ":" . $startVerse . "-" . $endVerse;
+    } else {
+        return $bookName . " " . $startChap . ":" . $startVerse . "-" . $endChap . ":" . $endVerse;
+    }
 }
+
 
 
 function checkParameters()

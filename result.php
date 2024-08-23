@@ -79,10 +79,12 @@ if(isset($_POST['bookset'])) {
 if(isset($_POST['searchtype'])) {
     $searchType = $_POST['searchtype'];
 }
-
 if(isset($_POST['casesensitive'])) {
     $caseSensitive = $_POST['casesensitive'];
+} else {
+    $caseSensitive = "no"; // Default value if not set
 }
+
 
 $diagnosticMessage="";
 if(!checkParameters())

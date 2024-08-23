@@ -597,13 +597,14 @@ function getPassage($passageString,$previousPassageInfo)
 				return $bibleVerseParseInfo;
 			}
 
-			$s_chap = num_conv($matches[1]); 
-			$s_vers = num_conv($matches[3]); 
-			$e_chap = num_conv($matches[5]); 
-			$e_vers = num_conv($matches[7]);
+            $s_chap = isset($matches[1]) ? num_conv($matches[1]) : null;
+            $s_vers = isset($matches[3]) ? num_conv($matches[3]) : null;
+            $e_chap = isset($matches[5]) ? num_conv($matches[5]) : null;
+            $e_vers = isset($matches[7]) ? num_conv($matches[7]) : null;
+
 	
 
-			if($bibleVerseParseInfo['bookStatus']=="calculated")
+			if(isset($bibleVerseParseInfo['bookStatus'])&&$bibleVerseParseInfo['bookStatus']=="calculated")
 			{
 
 				if(isset($previousPassageInfo['startVerse'])&&$previousPassageInfo['startVerseStatus']!="calculated"&&$previousPassageInfo['startVerseStatus']!="incorrect"
@@ -754,63 +755,60 @@ function getPassage($passageString,$previousPassageInfo)
 
 
 /**
+ * Function to convert from Hebrew numerals to integer
  *
- * function to convert from 
- * hebrew numerals to integer
- *
- * @param $h string
- * 
- * return integer
+ * @param string $h
+ * @return int
  */
 function hebrew_to_int($h) { 
     $n = 0; 
     for ($i = 0; $i < strlen($h); $i++) { 
-        $pos = ord($h{$i}) - 0x8f; 
+        $pos = ord($h[$i]) - 0x8f; 
         switch($pos) { 
-            case 11: case 12: $n+=20; break; 
-            case 13: $n+=30; break; 
-            case 14: case 15: $n+=40; break; 
-            case 16: case 17: $n+=50; break; 
-            case 18: $n+=60; break; 
-            case 19: $n+=70; break; 
-            case 20: case 21: $n+=80; break; 
-            case 22: case 23: $n+=90; break; 
+            case 11: case 12: $n += 20; break; 
+            case 13: $n += 30; break; 
+            case 14: case 15: $n += 40; break; 
+            case 16: case 17: $n += 50; break; 
+            case 18: $n += 60; break; 
+            case 19: $n += 70; break; 
+            case 20: case 21: $n += 80; break; 
+            case 22: case 23: $n += 90; break; 
             default: 
-              if ($pos <= 10) $n+=$pos; 
-              elseif ($pos <= 27) $n += ($pos-23)*100; 
+                if ($pos <= 10) $n += $pos; 
+                elseif ($pos <= 27) $n += ($pos - 23) * 100; 
         } 
     } 
     return $n; 
-} 
-
+}
 
 /**
+ * Function to convert from Hebrew or Roman numerals to integer
  *
- * function to convert from 
- * hebrew,roman numerals to integer
- *
- * @param $n string
- * 
- * return integer
+ * @param string $n
+ * @return int
  */
 function num_conv($n) { 
     if (!$n) 
-        return; 
-    if ($n{0} >= '0' and $n{0} <= '9') 
+        return 0; 
+    if ($n[0] >= '0' && $n[0] <= '9') 
         return intval($n); 
-    if ($n{0} <= 'z') { // assume Roman 
+    if ($n[0] <= 'z') { // assume Roman 
         return roman_to_int(strtoupper($n)); 
     } 
-    if ($n{0} == "\xD7") { // assume Hebrew unicode 
+    if ($n[0] == "\xD7") { // assume Hebrew unicode 
         return hebrew_to_int($n); 
     } 
     die('Unknown number form.'); 
 }
 
-
-function bibShortnameFunc($bibVersion)
-{
+/**
+ * Function to get the short name from a Bible version array
+ *
+ * @param array $bibVersion
+ * @return string
+ */
+function bibShortnameFunc($bibVersion) {
     return $bibVersion['shortname'];
-};
+}
 
 ?> 
