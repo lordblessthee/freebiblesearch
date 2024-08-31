@@ -1,5 +1,6 @@
 # Ignore specific file
 data/config.inc.php
 
+
 # Ignore all files in the temp directory
 bibledb/

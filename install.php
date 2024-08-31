@@ -446,28 +446,28 @@ function installDB($databaseInfo,$bibleVersion)
 	$databasepassword = $databaseInfo['databasepassword'] ;
 
 	$csvfile = "bibles/".$bibleVersion.".csv";
-	$con = mysql_connect($databasehost, $databaseusername, $databasepassword);
+	$con = mysqli_connect($databasehost, $databaseusername, $databasepassword);
 	if (!$con) {
-		$message = "<font color=red>"."Could not connect: ".mysql_error()."</font>";
+		$message = "<font color=red>"."Could not connect: ".mysqli_error()."</font>";
 		$noerror=false;
 		return $noerror;
 	}
 	echo 'Connected successfully';
-	$noerror = mysql_select_db($databasename,$con);
+	$noerror = mysqli_select_db($con,$databasename);
 	if (!$noerror) 
 	{
 		$message .="<font color = red>";
 		
-		$message .="Can\'t use $databasename: " . mysql_error();
+		$message .="Can\'t use $databasename: " . mysqli_error();
 		$message .="</font>";
 		return $noerror;
 	}
     $sql = "DROP TABLE IF EXISTS ".$databasetable." ;";
-    $result=mysql_query($sql);
+    $result=mysqli_query($con,$sql);
     if(!$result)
     {
 		$message .="<font color = red>";
-		$message .="Invalid query1: " . mysql_error();
+		$message .="Invalid query1: " . mysqli_error();
 		$message .="</font>";
 		$noerror=false;
 		return $noerror;
@@ -482,11 +482,11 @@ function installDB($databaseInfo,$bibleVersion)
 		VERSENO  int,
 		VERSETEXT longtext
 		);";
-	$result=mysql_query($sql);
+	$result=mysqli_query($con,$sql);
 	if(!$result)
 	{
 		$message .="<font color = red>";
-		$message .="Invalid query2: " . mysql_error();
+		$message .="Invalid query2: " . mysqli_error();
 		$message .="</font>";
 		$noerror=false;
 		return $noerror;
@@ -545,11 +545,11 @@ function installDB($databaseInfo,$bibleVersion)
 			$data[4]=addslashes($data[4]);
 			$linemysql="$data[0],$data[2],$data[3],'$data[4]'";
 			$query = "insert into $databasetable values($linemysql)";
-			$result=mysql_query($query);
+			$result=mysqli_query($con,$query);
 			if(!$result)
 			{
 				$message .="<font color = red>";
-				$message .="Invalid query3: " . mysql_error();
+				$message .="Invalid query3: " . mysqli_error();
 				$message .="</font>";
 				$noerror=false;
 				return $noerror;
@@ -558,7 +558,7 @@ function installDB($databaseInfo,$bibleVersion)
 		
 
         } 
-        @mysql_close($con);
+        @mysqli_close($con);
  		echo "Found a total of $lines records in this $bibleVersion csv file.\n";
 		return $noerror;
 	}

@@ -527,7 +527,7 @@ public function readFiles($path)
 						}
                                     
 				} 
-				if($searchCount) 
+				if(isset($searchCount)) 
 				{
 					array_push($this->arrayOfFilenames,$displayFilename);
 					$this->fileCounter++;

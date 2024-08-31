@@ -403,7 +403,7 @@ function executeFromFile($classGrepSearch)
 			}
 
 		}
-		if($htmllines=="")
+		if(isset($htmllines)&&$htmllines=="")
 		{
 			echo $template['searchResult']['NoMatches']['StartHTML'];
 			echo $template['searchResult']['NoMatches']['EndHTML'];

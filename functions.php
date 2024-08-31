@@ -166,156 +166,142 @@ function getBookCategory($aCategoryName)
 * return string
 */  
 
-function createLinesFromDB($databaseInfo,$classGrepSearch)
+function createLinesFromDB($databaseInfo, $classGrepSearch)
 {
-        global $limit,$start_span,$end_span,$bookset,$template,$version;
-	$databasehost = $databaseInfo['databasehost'];
-	$databasename = $databaseInfo['databasename'];
-	$databasetable = $databaseInfo['databasetable'];
-	$databaseusername = $databaseInfo['databaseusername'];
-	$databasepassword = $databaseInfo['databasepassword'] ;
-	$classGrepSearch->setGlobalCount(0);
-	$Books=getBooks();
-	$htmlLines="";
-	$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
-	mysql_select_db($databasename);
-	$searchArray=$classGrepSearch->getSearchArray();
-	if($classGrepSearch->getSearchType()=="allInFile")
-	{
-		$varArray['limit']=$limit;
-		$varArray['start_span']=$start_span;
-		$varArray['end_span']=$end_span;
-		$varArray['bookset']=$bookset;
-		$varArray['databasetable']=$databasetable;
-		$sql = createAllinChapterSQL($classGrepSearch,$varArray);
-	}
-	else
-	{
-		$sql = " SELECT * FROM ".$databasetable."  where ";
+    global $limit, $start_span, $end_span, $bookset, $template, $version;
+    $databasehost = $databaseInfo['databasehost'];
+    $databasename = $databaseInfo['databasename'];
+    $databasetable = $databaseInfo['databasetable'];
+    $databaseusername = $databaseInfo['databaseusername'];
+    $databasepassword = $databaseInfo['databasepassword'];
+    $classGrepSearch->setGlobalCount(0);
+    $Books = getBooks();
+    $htmlLines = "";
 
-		if($limit == "bookset")
-		{
-			$sql .="( ";
-			foreach($Books[getCategoryName($bookset)] as $BookName)
-			{
-				$bookId=array_search($BookName, $Books["All"]);
-				$sql .="bookid = $bookId or ";
-			}
-			$sql=substr($sql,0,(strlen($sql)-3));
-			$sql .=") and ";
-		}
-		if($limit == "span")
-		{
-		
-			for($i=$start_span;$i<=$end_span;$i++)
-			{
-				if($i==$start_span)
-				{
-					$sql .="( ";
-				}
+    // Connect to the database using mysqli
+    $con = new mysqli($databasehost, $databaseusername, $databasepassword, $databasename);
 
-				$sql .="bookid = $i ";
-				if($i != $end_span)
-				{
-					$sql .=" or ";
-				}
-				else
-				{
-					$sql .=") and ";
-				}
-			}
-		}
-	  foreach($searchArray as $search)
-	  {
+    // Check for connection errors
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
 
-		 if($classGrepSearch->getCaseSensitive())
-		  {
-			$sql .="binary ";
-		  }
-			if($classGrepSearch->getSearchType()=="all")
-			{
-				$sql .= "versetext like '%".$search."%' and ";
-			}else
-			{
-				$sql .= "versetext like '%".$search."%' or  ";
-			}
-		}
-		$sql=substr($sql,0,(strlen($sql)-4)).";";
-	}
-	$result=mysql_query($sql) or die(mysql_error()); 
-	$htmlLines="";
-	$newLine ="";
-	$prevChapterNo=0;
-	$ChapterNo=0;
-	$BookID=0;
-	$prevBookID=0;
-	$bookFirsttime=true;
-	  while($row=mysql_fetch_array($result))
-	  {
+    $searchArray = $classGrepSearch->getSearchArray();
 
+    if ($classGrepSearch->getSearchType() == "allInFile") {
+        $varArray['limit'] = $limit;
+        $varArray['start_span'] = $start_span;
+        $varArray['end_span'] = $end_span;
+        $varArray['bookset'] = $bookset;
+        $varArray['databasetable'] = $databasetable;
+        $sql = createAllinChapterSQL($classGrepSearch, $varArray);
+    } else {
+        $sql = "SELECT * FROM $databasetable WHERE ";
 
+        if ($limit == "bookset") {
+            $sql .= "( ";
+            foreach ($Books[getCategoryName($bookset)] as $BookName) {
+                $bookId = array_search($BookName, $Books["All"]);
+                $sql .= "bookid = $bookId OR ";
+            }
+            $sql = substr($sql, 0, -3);
+            $sql .= ") AND ";
+        }
 
-		$newLine="";
-		$BookID=(int)$row[BOOKID];
-		$ChapterNo=(int)$row[CHAPTERNO];
-		$verseNo=(int)$row[VERSENO];	
-		$bookName=$Books["All"][$BookID];	$verseText=$classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row[VERSETEXT]))
-			,$template['searchResult']['Verse']['SearchKeyStartTag'],
-				$template['searchResult']['Verse']['SearchKeyEndTag']);
-		if($classGrepSearch->getGlobalResult())
-		{
-			$newLine .=$template['searchResult']['Verse']['StartHTML'];
-			$newLine .=eval("return \"".$template['searchResult']['Verse']['ProcessHTML']."\";");
-			$newLine .=$template['searchResult']['Verse']['EndHTML'];
+        if ($limit == "span") {
+            for ($i = $start_span; $i <= $end_span; $i++) {
+                if ($i == $start_span) {
+                    $sql .= "( ";
+                }
 
-			if(($BookID!=$prevBookID))
-			{
-				if($bookFirsttime)
-				{
-					$newLine =$template['searchResult']['Book']['StartHTML'].
-					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
-						$template['searchResult']['Chapter']['StartHTML'].
-					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
-						$newLine;
-					$bookFirsttime=false;
+                $sql .= "bookid = $i ";
+                if ($i != $end_span) {
+                    $sql .= " OR ";
+                } else {
+                    $sql .= ") AND ";
+                }
+            }
+        }
 
-				}else
-				{
-					$newLine =$template['searchResult']['Chapter']['EndHTML'].
-						$template['searchResult']['Book']['EndHTML'].
-						$template['searchResult']['Book']['StartHTML'].
-					eval("return \"".$template['searchResult']['Book']['ProcessHTML']."\";").
-						$template['searchResult']['Chapter']['StartHTML'].
-					eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
-						$newLine;
-				}
-			}
-			else
-				if(($ChapterNo!=$prevChapterNo))
-				{
-					$newLine =$template['searchResult']['Chapter']['EndHTML'].
-						$template['searchResult']['Chapter']['StartHTML'].
-						eval("return \"".$template['searchResult']['Chapter']['ProcessHTML']."\";").
-						$newLine;
-					
-				}
-			
-			$prevBookID=$BookID;
-			$prevChapterNo=$ChapterNo;
-			$htmlLines .=$newLine;
-		}
- 
-	 }
-	if($htmlLines=="")
-	{
-		echo $template['searchResult']['NoMatches']['StartHTML'];
-		echo $template['searchResult']['NoMatches']['EndHTML'];
-	}
-	 $htmlLines .=$template['searchResult']['Chapter']['EndHTML'];
-	$htmlLines .=$template['searchResult']['Book']['EndHTML'];
-	  return $htmlLines;
+        foreach ($searchArray as $search) {
+            if ($classGrepSearch->getCaseSensitive()) {
+                $sql .= "BINARY ";
+            }
+            if ($classGrepSearch->getSearchType() == "all") {
+                $sql .= "versetext LIKE '%$search%' AND ";
+            } else {
+                $sql .= "versetext LIKE '%$search%' OR  ";
+            }
+        }
+        $sql = substr($sql, 0, -4) . ";";
+    }
 
+    // Execute the query
+    $result = $con->query($sql);
+    if (!$result) {
+        die("Query failed: " . $con->error);
+    }
+
+    $htmlLines = "";
+    $newLine = "";
+    $prevChapterNo = 0;
+    $ChapterNo = 0;
+    $BookID = 0;
+    $prevBookID = 0;
+    $bookFirsttime = true;
+
+    while ($row = $result->fetch_assoc()) {
+        $newLine = "";
+        $BookID = (int)$row['BOOKID'];
+        $ChapterNo = (int)$row['CHAPTERNO'];
+        $verseNo = (int)$row['VERSENO'];
+        $bookName = $Books["All"][$BookID];
+        $verseText = $classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row['VERSETEXT'])), $template['searchResult']['Verse']['SearchKeyStartTag'], $template['searchResult']['Verse']['SearchKeyEndTag']);
+        if ($classGrepSearch->getGlobalResult()) {
+            $newLine .= $template['searchResult']['Verse']['StartHTML'];
+            $newLine .= eval("return \"" . $template['searchResult']['Verse']['ProcessHTML'] . "\";");
+            $newLine .= $template['searchResult']['Verse']['EndHTML'];
+
+            if ($BookID != $prevBookID) {
+                if ($bookFirsttime) {
+                    $newLine = $template['searchResult']['Book']['StartHTML'] .
+                        eval("return \"" . $template['searchResult']['Book']['ProcessHTML'] . "\";") .
+                        $template['searchResult']['Chapter']['StartHTML'] .
+                        eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
+                        $newLine;
+                    $bookFirsttime = false;
+                } else {
+                    $newLine = $template['searchResult']['Chapter']['EndHTML'] .
+                        $template['searchResult']['Book']['EndHTML'] .
+                        $template['searchResult']['Book']['StartHTML'] .
+                        eval("return \"" . $template['searchResult']['Book']['ProcessHTML'] . "\";") .
+                        $template['searchResult']['Chapter']['StartHTML'] .
+                        eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
+                        $newLine;
+                }
+            } elseif ($ChapterNo != $prevChapterNo) {
+                $newLine = $template['searchResult']['Chapter']['EndHTML'] .
+                    $template['searchResult']['Chapter']['StartHTML'] .
+                    eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
+                    $newLine;
+            }
+
+            $prevBookID = $BookID;
+            $prevChapterNo = $ChapterNo;
+            $htmlLines .= $newLine;
+        }
+    }
+
+    if ($htmlLines == "") {
+        echo $template['searchResult']['NoMatches']['StartHTML'];
+        echo $template['searchResult']['NoMatches']['EndHTML'];
+    }
+    $htmlLines .= $template['searchResult']['Chapter']['EndHTML'];
+    $htmlLines .= $template['searchResult']['Book']['EndHTML'];
+
+    return $htmlLines;
 }
+
 
 /**
 *
@@ -497,8 +483,8 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	$databaseusername = $databaseInfo['databaseusername'];
 	$databasepassword = $databaseInfo['databasepassword'] ;
 	$Books=getBookIndex();
-	$con = @mysql_connect($databasehost,$databaseusername,$databasepassword) or die(mysql_error());
-    mysql_select_db($databasename);
+	$con = @mysqli_connect($databasehost,$databaseusername,$databasepassword) or die(mysqli_error());
+    mysqli_select_db($databasename);
 	if(!isset($Books[$bookName]))
 	{
 		return false;
@@ -510,9 +496,9 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	if($chapterNo!==false)
 	{
 		$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
-		$result=mysql_query($sql) or die(mysql_error());
+		$result=mysqli_query($sql) or die(mysqli_error());
 		$tempstring="";
-		while($row=mysql_fetch_array($result))
+		while($row=mysqli_fetch_array($result))
 		{
 			$verseTextArray[]=$row;
 		}
