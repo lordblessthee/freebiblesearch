@@ -422,62 +422,73 @@ public function createSearchArray($searchString)
 public function readDir($path)  
 {
 	$handle = @opendir($path); 
-  	while($file = @readdir($handle) )  
+  	while($file = @readdir($handle))  
   	{
 		$totalCount = 0;
-		if ( $file != "." && $file != ".." && is_dir($path.$file))
+		if ($file != "." && $file != ".." && is_dir($path . $file))
 		{
-			$subDir = $path . $file . "/" ; array_push($this->dirArr,$file) ;
+			$subDir = $path . $file . "/";
+			array_push($this->dirArr, $file);
 			$this->readDir($subDir); 
 		} 
-		else 
-		     if ($file != "." && $file != ".." && is_file($path.$file))  
-		     {
-			$subDir = $path . $file  ;
-			$temp = explode(".",$file); 
+		else if ($file != "." && $file != ".." && is_file($path . $file))  
+		{
+			$subDir = $path . $file;
+			$temp = explode(".", $file); 
 			$ext = end($temp); 
 			$filePath = $subDir;
-			$displayFilename = str_replace($this->scanDir, './',$filePath);
-			// start searching and replacing	
-			//  searches only files extention in the given array
-			if(in_array(trim($ext),$this->newArrayOfExtentions) ) 
-			{
-				$fileContents=file_get_contents($filePath);
-				$this->createSearchArray($this->searchString);
-				foreach($this->searchArray as $searchStr)
-				{
-					if($this->caseSensitive)
-					{
-						$searchCount = strpos($fileContents,$searchStr);
-					}
-					else
-					{
-						$searchCount = stripos($fileContents,$searchStr);
-					}
-					if($searchCount&&!$this->searchType=="allInFile")
-					{
-						break;
+			$displayFilename = str_replace($this->scanDir, './', $filePath);
 
+			// Check if the file extension is in the allowed extensions array
+			if (in_array(trim($ext), $this->newArrayOfExtentions)) 
+			{
+				$fileContents = file_get_contents($filePath);
+				$this->createSearchArray($this->searchString);
+
+				$matchFound = ($this->searchType === "allInFile");
+				foreach ($this->searchArray as $searchStr)
+				{
+					if ($this->caseSensitive)
+					{
+						$searchCount = strpos($fileContents, $searchStr);
 					}
 					else
-						if(!$searchCount&&$this->searchType=="allInFile")
+					{
+						$searchCount = stripos($fileContents, $searchStr);
+					}
+
+					if ($this->searchType === "allInFile")
+					{
+						// For "allInFile", ensure all words must match
+						if ($searchCount === false) 
 						{
+							$matchFound = false;
 							break;
 						}
-										
-				} 
-				if($searchCount) 
-				{
-					array_push($this->arrayOfFilenames,$displayFilename);
-					$this->fileCounter++;
-								
+					}
+					else
+					{
+						// For other search types, we just need one match
+						if ($searchCount !== false)
+						{
+							$matchFound = true;
+							break;
+						}
+					}
 				}
-				array_push($this->dirFile,$file) ;
+
+				if ($matchFound) 
+				{
+					array_push($this->arrayOfFilenames, $displayFilename);
+					$this->fileCounter++;
+				}
+				array_push($this->dirFile, $file);
 			}
 		}
 	}
 	return $this->fileCounter;
 }
+
 
 /**
 *
@@ -489,56 +500,68 @@ public function readDir($path)
 */
 public function readFiles($path) 
 {
-	$handle = @opendir($path);
-        while ($file = @readdir($handle) )
-	{
-		$totalCount = 0;
-                if ($file != "." && $file != ".." && is_file($path.$file))
-		{
-			$subDir = $path . $file  ;
-			$temp = explode(".",$file);
-			$ext = end($temp);
-			$filePath = $subDir;		            
-			$displayFilename = str_replace($this->scanDir, './',$filePath);
-			// start searching and replacing	
-			//  searches only files extention in the given array
-			if(in_array(trim($ext),$this->newArrayOfExtentions) ) 
-			{
-				$fileContents=file_get_contents($filePath);
-				$this->createSearchArray($this->searchString);
-				foreach($this->searchArray as $searchStr)
-				{
-                    if($this->caseSensitive)
-					{
-						$searchCount = strpos($fileContents,$searchStr);
-					}
-					else
-					{
-						$searchCount = stripos($fileContents,$searchStr);
-					}
-					if($searchCount&&!$this->searchType=="allInFile")
-					{
-						break;
-					}
-					else
-						if(!$searchCount&&$this->searchType=="allInFile")
-						{
-							break;
-						}
-                                    
-				} 
-				if(isset($searchCount)) 
-				{
-					array_push($this->arrayOfFilenames,$displayFilename);
-					$this->fileCounter++;
-							
-				}
-				array_push($this->dirFile,$file) ;
-			}
-		}
-	}
-	return $this->fileCounter;
+    $handle = @opendir($path);
+    while ($file = @readdir($handle)) 
+    {
+        if ($file != "." && $file != ".." && is_file($path . $file)) 
+        {
+            $subDir = $path . $file;
+            $temp = explode(".", $file);
+            $ext = end($temp);
+            $filePath = $subDir;
+            $displayFilename = str_replace($this->scanDir, './', $filePath);
+
+            // Start searching and replacing
+            // Searches only files with extensions in the given array
+            if (in_array(trim($ext), $this->newArrayOfExtentions)) 
+            {
+                $fileContents = file_get_contents($filePath);
+                $this->createSearchArray($this->searchString);
+
+                $matchFound = ($this->searchType === "allInFile");
+                foreach ($this->searchArray as $searchStr) 
+                {
+                    if ($this->caseSensitive) 
+                    {
+                        $searchCount = strpos($fileContents, $searchStr);
+                    } 
+                    else 
+                    {
+                        $searchCount = stripos($fileContents, $searchStr);
+                    }
+
+                    if ($this->searchType === "allInFile") 
+                    {
+                        // For "allInFile", ensure all words must match
+                        if ($searchCount === false) 
+                        {
+                            $matchFound = false;
+                            break;
+                        }
+                    } 
+                    else 
+                    {
+                        // For other search types, we just need one match
+                        if ($searchCount !== false) 
+                        {
+                            $matchFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($matchFound) 
+                {
+                    array_push($this->arrayOfFilenames, $displayFilename);
+                    $this->fileCounter++;
+                }
+                array_push($this->dirFile, $file);
+            }
+        }
+    }
+    return $this->fileCounter;
 }
+
 
 /**
 *
