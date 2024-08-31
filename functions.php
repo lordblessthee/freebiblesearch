@@ -484,7 +484,7 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	$databasepassword = $databaseInfo['databasepassword'] ;
 	$Books=getBookIndex();
 	$con = @mysqli_connect($databasehost,$databaseusername,$databasepassword) or die(mysqli_error());
-    mysqli_select_db($databasename);
+    mysqli_select_db($con, $databasename);
 	if(!isset($Books[$bookName]))
 	{
 		return false;

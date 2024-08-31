@@ -5,6 +5,9 @@
  */
 
  $parallelBibles=6;
+ 
+ // The Database TYPE
+$databaseType="SAMPLE";
 
 // The Bible Full Name (THE AMPLIFIED BIBLE)
 $sampleBibleVersion[0]["name"]="THE AMPLIFIED BIBLE";

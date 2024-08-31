@@ -14,24 +14,29 @@ else
 {
 	$showlinks=false;
 } 
+
+if(isset($_GET['template']))
+{
+    $selectedTemplate=$_GET['template'];
+}
+else
+{
+    echo "Template not given in url";
+    exit;
+}
+
 if(!$showlinks) 
 {
-	if(isset($_GET['template']))
-	{
-		$selectedTemplate=$_GET['template'];
-	}
-	else
-	{
-		echo "Template not given in url";
-		exit;
-	}
+    if (!isset($configVars)) {
+        $configVars = [];
+    }
 	writeConfigFile($configVars,"sample.");
 	writeHeaderFooterFile("sample.");
 	writeTemplateFile($selectedTemplate,"sample.");
 	echo "<html>\n";
 	echo "<title>Preview Template $selectedTemplate</title>\n";
     echo "<frameset cols='20%,80%'>\r\n"; 
-    echo     "<frame name='theLink' src='preview.php?showlinks'>\r\n"; 
+    echo     "<frame name='theLink' src='preview.php?showlinks&template=$selectedTemplate'>\r\n"; 
     echo     "<frame name='thePage' src='result.php?search=eternal%20life&preview'>\r\n"; 
     echo "</frameset>\r\n";
 	echo "</html>"; 

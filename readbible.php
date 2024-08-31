@@ -145,15 +145,11 @@ else
 		{
 			$showChapterLinks=false;  
 		}
+        $ChapterNo = 1;
 		if(isset($_GET['chapter'])) 
 		{
 			$ChapterNo = (int)$_GET['chapter'];
 				
-		}
-		else
-		{
-			$ChapterNo = 1;
-
 		}
 		if($ChapterNo > $chapterCount||$ChapterNo <1)
 		{
@@ -209,7 +205,7 @@ else
 		echo $currentTemplate['Verse']['StartHTML'];
 		if($preview)
 		{
-			$verseTextArray=getVersesFromSample($bookName,$chapterNo);
+			$verseTextArray=getVersesFromSample($bookName,$ChapterNo);
 			foreach($verseTextArray as $verseTextArr)
 			{
 				$verseNo=$verseTextArr[0];

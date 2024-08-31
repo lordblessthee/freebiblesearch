@@ -25,20 +25,31 @@ function writeConfigFile($configVars,$installprefix)
         
 		$defaultConfig=file_get_contents("template/default.config.inc.php");
         $configStr="";
-        for($i=0;$i<count($configVars['varName']);$i++)
-        {
-			if(isset($configVars['Comments'][$i]))
-			{
-				foreach($configVars['Comments'][$i] as $comments)
-				{
-					$configStr .="// ".$comments."\n";
-				}
+        // installfunctions.php line 28
+        if (is_array($configVars) && (count($configVars) > 0)) {
+            for($i=0;$i<count($configVars['varName']);$i++)
+            {
+                if(isset($configVars['Comments'][$i]))
+                {
+                    foreach($configVars['Comments'][$i] as $comments)
+                    {
+                        $configStr .="// ".$comments."\n";
+                    }
 
-			}
-			$configStr .="\$".$configVars['varName'][$i]."=".$configVars['value'][$i].";"."\n";
+                }
+                $configStr .="\$".$configVars['varName'][$i]."=".$configVars['value'][$i].";"."\n";
+            }
+            $defaultConfigModified=str_replace("<%main%>",$configStr,$defaultConfig);
+            myfile_put_contents("data/".$installprefix."config.inc.php",$defaultConfigModified);
+        } else {
+            // Handle the case where $configVars is not an array
+            //$configVars = [];
+            // You can add more logic here as needed, or handle the error
+            $defaultConfigModified=str_replace("<%main%>","",$defaultConfig);
+            myfile_put_contents("data/".$installprefix."config.inc.php",$defaultConfigModified);
         }
-        $defaultConfigModified=str_replace("<%main%>",$configStr,$defaultConfig);
-        myfile_put_contents("data/".$installprefix."config.inc.php",$defaultConfigModified);
+
+
 
 }
 

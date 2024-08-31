@@ -222,6 +222,7 @@ foreach($bibleVersionArray as $bibVersion)
 			$fileContentsStruct[count($fileContentsStruct)-1][1]=array_slice($fileContentsStruct[count($fileContentsStruct)-1][1],0,(($parseInfo['endVerse']+1)-$parseInfo['startVerse']));
 			echo $currentTemplate['Book']['StartHTML'];
 			eval("echo \"".$currentTemplate['Book']['ProcessHTML']."\";");
+            $txt='';
 			foreach($fileContentsStruct as $chapterText)
 			{
 				$ChapterNo=$chapterText[0];
