@@ -1,6 +1,15 @@
-# Ignore specific file
-data/config.inc.php
-
-
 # Ignore all files in the temp directory
 bibledb/
+
+# Ignore everything in the data directory
+data/*
+
+# Except the header.inc.php file
+!data/header.inc.php
+
+# Except the footer.inc.php file
+!data/footer.inc.php
+
+# Except the images directory
+!data/images/
+
