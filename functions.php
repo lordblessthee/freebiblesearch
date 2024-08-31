@@ -496,7 +496,7 @@ function getChaptersFromDB($databaseInfo,$bookName,$chapterNo)
 	if($chapterNo!==false)
 	{
 		$sql = " SELECT verseno, versetext FROM ".$databasetable."  where bookid = $bookId and chapterno = $chapterNo;";
-		$result=mysqli_query($sql) or die(mysqli_error());
+		$result=mysqli_query($con, $sql) or die(mysqli_error());
 		$tempstring="";
 		while($row=mysqli_fetch_array($result))
 		{
