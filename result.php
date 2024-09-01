@@ -317,7 +317,7 @@ function executeFromFile($classGrepSearch)
 		$template,$bibleDatabase,$BibleVersion,$bibleVersionArray;
 
 
-
+    $classGrepSearch->createSearchArray($searchString);
 	$keyWordArray=explode(",",$keyWordList);
 	$version=implode("|",array_map("bibShortnameFunc",$bibleVersionArray));
 	echo $template['searchResult']['KeywordList']['StartHTML'];
@@ -334,6 +334,12 @@ function executeFromFile($classGrepSearch)
 		echo $template['searchResult']['BibleVersion']['StartHTML'];
 		eval("echo \"".$template['searchResult']['BibleVersion']['ProcessHTML']."\";");
 		echo $template['searchResult']['BibleVersion']['EndHTML'];
+        // Handle case when searchArray is empty
+        if (empty($classGrepSearch->getSearchArray())) {
+            echo $template['searchResult']['NoMatches']['StartHTML'] . 
+            $template['searchResult']['NoMatches']['EndHTML'];
+            continue;
+        }
 		$scan_dir=$bibleDatabase.$version."db/";
 		$classGrepSearch->setScanDir($scan_dir);
 		$classGrepSearch->initializeArrayOfFilenames();

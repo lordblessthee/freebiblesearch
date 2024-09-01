@@ -516,7 +516,6 @@ public function readFiles($path)
             if (in_array(trim($ext), $this->newArrayOfExtentions)) 
             {
                 $fileContents = file_get_contents($filePath);
-                $this->createSearchArray($this->searchString);
 
                 $matchFound = ($this->searchType === "allInFile");
                 foreach ($this->searchArray as $searchStr) 
