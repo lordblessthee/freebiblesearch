@@ -3,12 +3,8 @@
 /**
  * Main file
  */
-if(file_exists("data/config.inc.php"))
-{
+if (file_exists("data/config.inc.php")) {
 	require_once('search.php');
-}
-else
-{
+} else {
 	require_once('install.php');
 }
-?>
