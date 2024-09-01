@@ -187,6 +187,12 @@ function createLinesFromDB($databaseInfo, $classGrepSearch)
     }
 
     $searchArray = $classGrepSearch->getSearchArray();
+    
+    // Handle case when searchArray is empty
+    if (empty($searchArray)) {
+        return $template['searchResult']['NoMatches']['StartHTML'] . 
+               $template['searchResult']['NoMatches']['EndHTML'];
+    }
 
     if ($classGrepSearch->getSearchType() == "allInFile") {
         $varArray['limit'] = $limit;
@@ -222,7 +228,7 @@ function createLinesFromDB($databaseInfo, $classGrepSearch)
                 }
             }
         }
-
+        $sql .= "( ";
         foreach ($searchArray as $search) {
             if ($classGrepSearch->getCaseSensitive()) {
                 $sql .= "BINARY ";
@@ -233,7 +239,7 @@ function createLinesFromDB($databaseInfo, $classGrepSearch)
                 $sql .= "versetext LIKE '%$search%' OR  ";
             }
         }
-        $sql = substr($sql, 0, -4) . ";";
+    $sql = substr($sql, 0, -4) . ");";
     }
 
     // Execute the query
@@ -241,7 +247,8 @@ function createLinesFromDB($databaseInfo, $classGrepSearch)
     if (!$result) {
         die("Query failed: " . $con->error);
     }
-
+    //Uncomment below line to check the last executed query.
+    //echo "Last executed query: " . $sql;
     $htmlLines = "";
     $newLine = "";
     $prevChapterNo = 0;

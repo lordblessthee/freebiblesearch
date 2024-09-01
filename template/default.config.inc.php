@@ -7,21 +7,26 @@
 
 <%main%>
 
-$Book["All"][1]="Genesis";
-$BookIndex["Genesis"]="1";
-$Book["Old Testament"][1]="Genesis";
-$Book["All"][2]="Exodus";
-$BookIndex["Exodus"]="2";
-$Book["Old Testament"][2]="Exodus";
-$Book["All"][3]="Leviticus";
-$BookIndex["Leviticus"]="3";
-$Book["Old Testament"][3]="Leviticus";
-$Book["All"][4]="Numbers";
-$BookIndex["Numbers"]="4";
-$Book["Old Testament"][4]="Numbers";
-$Book["All"][5]="Deuteronomy";
-$BookIndex["Deuteronomy"]="5";
-$Book["Old Testament"][5]="Deuteronomy";
+$Book["All"][1] = "Genesis";
+$BookIndex["Genesis"] = "1";
+$Book["Old Testament"][1] = "Genesis";
+$Book["Books of Moses"][1] = "Genesis";
+$Book["All"][2] = "Exodus";
+$BookIndex["Exodus"] = "2";
+$Book["Old Testament"][2] = "Exodus";
+$Book["Books of Moses"][2] = "Exodus";
+$Book["All"][3] = "Leviticus";
+$BookIndex["Leviticus"] = "3";
+$Book["Old Testament"][3] = "Leviticus";
+$Book["Books of Moses"][3] = "Leviticus";
+$Book["All"][4] = "Numbers";
+$BookIndex["Numbers"] = "4";
+$Book["Old Testament"][4] = "Numbers";
+$Book["Books of Moses"][4] = "Numbers";
+$Book["All"][5] = "Deuteronomy";
+$BookIndex["Deuteronomy"] = "5";
+$Book["Old Testament"][5] = "Deuteronomy";
+$Book["Books of Moses"][5] = "Deuteronomy";
 $Book["All"][6]="Joshua";
 $BookIndex["Joshua"]="6";
 $Book["Old Testament"][6]="Joshua";
