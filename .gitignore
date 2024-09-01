@@ -10,6 +10,9 @@ data/*
 # Except the footer.inc.php file
 !data/footer.inc.php
 
+# Except the footer.inc.php file
+!data/template.inc.php
+
 # Except the images directory
 !data/images/
 
