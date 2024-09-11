@@ -148,159 +148,233 @@ function getBookCategory($aCategoryName)
 }
 
 /**
+ * Function to create HTML Lines from database for the given search string.
  *
- * function to create HTML Lines
- * from database for the given
- * search string.
- *
- * @param $databaseInfo array
- * @param $classGrepSearch class Instance
- *
- * return string
+ * @param array $databaseInfo
+ * @param object $classGrepSearch
+ * @return string
  */
-
 function createLinesFromDB($databaseInfo, $classGrepSearch)
 {
-	global $limit, $start_span, $end_span, $bookset, $template, $version;
-	$databasehost = $databaseInfo['databasehost'];
-	$databasename = $databaseInfo['databasename'];
-	$databasetable = $databaseInfo['databasetable'];
-	$databaseusername = $databaseInfo['databaseusername'];
-	$databasepassword = $databaseInfo['databasepassword'];
-	$classGrepSearch->setGlobalCount(0);
-	$Books = getBooks();
-	$htmlLines = "";
+    global $limit, $start_span, $end_span, $bookset, $template, $version;
 
-	// Connect to the database using mysqli
-	$con = new mysqli($databasehost, $databaseusername, $databasepassword, $databasename);
+    // Connect to the database
+    $con = connectToDB($databaseInfo);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
 
-	// Check for connection errors
-	if ($con->connect_error) {
-		die("Connection failed: " . $con->connect_error);
-	}
+    // Get search array
+    $searchArray = $classGrepSearch->getSearchArray();
+    if (empty($searchArray)) {
+        return $template['searchResult']['NoMatches']['StartHTML'] .
+               $template['searchResult']['NoMatches']['EndHTML'];
+    }
 
-	$searchArray = $classGrepSearch->getSearchArray();
+    // Generate SQL based on search type
+    $sql = generateSQLQuery($classGrepSearch, $searchArray, $limit, $start_span, $end_span, $bookset, $databaseInfo['databasetable']);
 
-	// Handle case when searchArray is empty
-	if (empty($searchArray)) {
-		return $template['searchResult']['NoMatches']['StartHTML'] .
-			$template['searchResult']['NoMatches']['EndHTML'];
-	}
+    // Execute query and handle result
+    $result = $con->query($sql);
+    if (!$result) {
+        die("Query failed: " . $con->error);
+    }
 
-	if ($classGrepSearch->getSearchType() == "allInFile") {
-		$varArray['limit'] = $limit;
-		$varArray['start_span'] = $start_span;
-		$varArray['end_span'] = $end_span;
-		$varArray['bookset'] = $bookset;
-		$varArray['databasetable'] = $databasetable;
-		$sql = createAllinChapterSQL($classGrepSearch, $varArray);
-	} else {
-		$sql = "SELECT * FROM $databasetable WHERE ";
+    // Process query result and build HTML lines
+    $htmlLines = buildHTMLFromResult($result, $classGrepSearch, $template, $version);
 
-		if ($limit == "bookset") {
-			$sql .= "( ";
-			foreach ($Books[getCategoryName($bookset)] as $BookName) {
-				$bookId = array_search($BookName, $Books["All"]);
-				$sql .= "bookid = $bookId OR ";
-			}
-			$sql = substr($sql, 0, -3);
-			$sql .= ") AND ";
-		}
+    // Handle no results case
+    if (empty($htmlLines)) {
+        return $template['searchResult']['NoMatches']['StartHTML'] .
+               $template['searchResult']['NoMatches']['EndHTML'];
+    }
 
-		if ($limit == "span") {
-			for ($i = $start_span; $i <= $end_span; $i++) {
-				if ($i == $start_span) {
-					$sql .= "( ";
-				}
+    // Close tags for the last chapter and book
+    $htmlLines .= $template['searchResult']['Chapter']['EndHTML'] .
+                  $template['searchResult']['Book']['EndHTML'];
 
-				$sql .= "bookid = $i ";
-				if ($i != $end_span) {
-					$sql .= " OR ";
-				} else {
-					$sql .= ") AND ";
-				}
-			}
-		}
-		$sql .= "( ";
-		foreach ($searchArray as $search) {
-			if ($classGrepSearch->getCaseSensitive()) {
-				$sql .= "BINARY ";
-			}
-			if ($classGrepSearch->getSearchType() == "all") {
-				$sql .= "versetext LIKE '%$search%' AND ";
-			} else {
-				$sql .= "versetext LIKE '%$search%' OR  ";
-			}
-		}
-		$sql = substr($sql, 0, -4) . ");";
-	}
+    return $htmlLines;
+}
 
-	// Execute the query
-	$result = $con->query($sql);
-	if (!$result) {
-		die("Query failed: " . $con->error);
-	}
-	//Uncomment below line to check the last executed query.
-	//echo "Last executed query: " . $sql;
-	$htmlLines = "";
-	$newLine = "";
-	$prevChapterNo = 0;
-	$ChapterNo = 0;
-	$BookID = 0;
-	$prevBookID = 0;
-	$bookFirsttime = true;
+/**
+ * Connects to the database.
+ *
+ * @param array $databaseInfo
+ * @return mysqli
+ */
+function connectToDB($databaseInfo)
+{
+    return new mysqli(
+        $databaseInfo['databasehost'],
+        $databaseInfo['databaseusername'],
+        $databaseInfo['databasepassword'],
+        $databaseInfo['databasename']
+    );
+}
+
+/**
+ * Generates the SQL query based on the search type and parameters.
+ *
+ * @param object $classGrepSearch
+ * @param array $searchArray
+ * @param string $limit
+ * @param int $start_span
+ * @param int $end_span
+ * @param string $bookset
+ * @param string $databasetable
+ * @return string
+ */
+function generateSQLQuery($classGrepSearch, $searchArray, $limit, $start_span, $end_span, $bookset, $databasetable)
+{
+    $Books = getBooks();
+    $sql = "SELECT * FROM $databasetable WHERE ";
+
+    // Handle limit cases (bookset, span)
+    if ($limit === 'bookset') {
+        $sql .= buildBooksetSQL($bookset, $Books);
+    } elseif ($limit === 'span') {
+        $sql .= buildSpanSQL($start_span, $end_span);
+    }
+
+    // Build search conditions
+    $sql .= buildSearchSQL($classGrepSearch, $searchArray);
+
+    return $sql;
+}
+
+/**
+ * Builds SQL for limiting by bookset.
+ *
+ * @param string $bookset
+ * @param array $Books
+ * @return string
+ */
+function buildBooksetSQL($bookset, $Books)
+{
+    $bookIds = array_map(function($BookName) use ($Books) {
+        return array_search($BookName, $Books["All"]);
+    }, $Books[getCategoryName($bookset)]);
+
+    return "(" . implode(" OR ", array_map(function($id) {
+        return "bookid = $id";
+    }, $bookIds)) . ") AND ";
+}
+
+/**
+ * Builds SQL for limiting by span.
+ *
+ * @param int $start_span
+ * @param int $end_span
+ * @return string
+ */
+function buildSpanSQL($start_span, $end_span)
+{
+    $spanSQL = "(";
+    for ($i = $start_span; $i <= $end_span; $i++) {
+        $spanSQL .= "bookid = $i" . ($i !== $end_span ? " OR " : "");
+    }
+    return $spanSQL . ") AND ";
+}
+
+/**
+ * Builds SQL for the search conditions.
+ *
+ * @param object $classGrepSearch
+ * @param array $searchArray
+ * @return string
+ */
+function buildSearchSQL($classGrepSearch, $searchArray)
+{
+    $searchSQL = "(";
+    foreach ($searchArray as $search) {
+        $binary = $classGrepSearch->getCaseSensitive() ? "BINARY " : "";
+        $operator = $classGrepSearch->getSearchType() === "all" ? "AND" : "OR";
+        $searchSQL .= "$binary versetext LIKE '%$search%' $operator ";
+    }
+    return substr($searchSQL, 0, -4) . ");";
+}
+
+/**
+ * Builds HTML lines from the query result.
+ *
+ * @param mysqli_result $result
+ * @param object $classGrepSearch
+ * @param array $template
+ * @return string
+ */
+function buildHTMLFromResult($result, $classGrepSearch, $template, $version)
+{
+    $Books = getBooks();
+    $htmlLines = "";
+    $prevBookID = 0;
+    $prevChapterNo = 0;
+    $bookFirsttime = true;
 
 	while ($row = $result->fetch_assoc()) {
 		$newLine = "";
 		$BookID = (int)$row['BOOKID'];
 		$ChapterNo = (int)$row['CHAPTERNO'];
-		$verseNo = (int)$row['VERSENO'];
-		$bookName = $Books["All"][$BookID];
+		$verseNo = (int)$row['VERSENO']; // Get verse number from database
 		$verseText = $classGrepSearch->allStrReplaceTag(htmlentities(html_entity_decode($row['VERSETEXT'])), $template['searchResult']['Verse']['SearchKeyStartTag'], $template['searchResult']['Verse']['SearchKeyEndTag']);
+	
 		if ($classGrepSearch->getGlobalResult()) {
-			$newLine .= $template['searchResult']['Verse']['StartHTML'];
-			$newLine .= eval("return \"" . $template['searchResult']['Verse']['ProcessHTML'] . "\";");
-			$newLine .= $template['searchResult']['Verse']['EndHTML'];
-
-			if ($BookID != $prevBookID) {
-				if ($bookFirsttime) {
-					$newLine = $template['searchResult']['Book']['StartHTML'] .
-						eval("return \"" . $template['searchResult']['Book']['ProcessHTML'] . "\";") .
-						$template['searchResult']['Chapter']['StartHTML'] .
-						eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
-						$newLine;
-					$bookFirsttime = false;
-				} else {
-					$newLine = $template['searchResult']['Chapter']['EndHTML'] .
-						$template['searchResult']['Book']['EndHTML'] .
-						$template['searchResult']['Book']['StartHTML'] .
-						eval("return \"" . $template['searchResult']['Book']['ProcessHTML'] . "\";") .
-						$template['searchResult']['Chapter']['StartHTML'] .
-						eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
-						$newLine;
-				}
-			} elseif ($ChapterNo != $prevChapterNo) {
-				$newLine = $template['searchResult']['Chapter']['EndHTML'] .
-					$template['searchResult']['Chapter']['StartHTML'] .
-					eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") .
-					$newLine;
-			}
-
+			$newLine = buildVerseHTML($classGrepSearch, $template, $verseText, $BookID, $ChapterNo, $verseNo, $bookFirsttime, $prevBookID, $prevChapterNo, $version); // Pass $version
+	
+			// Update previous book and chapter variables
 			$prevBookID = $BookID;
 			$prevChapterNo = $ChapterNo;
 			$htmlLines .= $newLine;
 		}
 	}
+	
 
-	if ($htmlLines == "") {
-		echo $template['searchResult']['NoMatches']['StartHTML'];
-		echo $template['searchResult']['NoMatches']['EndHTML'];
-	}
-	$htmlLines .= $template['searchResult']['Chapter']['EndHTML'];
-	$htmlLines .= $template['searchResult']['Book']['EndHTML'];
-
-	return $htmlLines;
+    return $htmlLines;
 }
+
+/**
+ * Builds the HTML for a single verse.
+ *
+ * @param object $classGrepSearch
+ * @param array $template
+ * @param string $verseText
+ * @param int $BookID
+ * @param int $ChapterNo
+ * @param bool $bookFirsttime
+ * @param int $prevBookID
+ * @param int $prevChapterNo
+ * @return string
+ */
+function buildVerseHTML($classGrepSearch, $template, $verseText, $BookID, $ChapterNo, $verseNo, &$bookFirsttime, $prevBookID, $prevChapterNo, $version)
+{
+    // Ensure $version is passed correctly
+    $Books = getBooks();
+    $bookName = $Books["All"][$BookID];
+
+    // Prepare the HTML for the verse
+    $newLine = $template['searchResult']['Verse']['StartHTML'];
+    $newLine .= eval("return \"" . $template['searchResult']['Verse']['ProcessHTML'] . "\";");
+    $newLine .= $template['searchResult']['Verse']['EndHTML'];
+
+    // Handle book and chapter transitions
+    if ($BookID != $prevBookID) {
+        $newLine = ($bookFirsttime ? "" : $template['searchResult']['Chapter']['EndHTML'] . $template['searchResult']['Book']['EndHTML']) .
+            $template['searchResult']['Book']['StartHTML'] .
+            eval("return \"" . $template['searchResult']['Book']['ProcessHTML'] . "\";") .
+            $template['searchResult']['Chapter']['StartHTML'] .
+            eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") . $newLine;
+        $bookFirsttime = false;
+    } elseif ($ChapterNo != $prevChapterNo) {
+        $newLine = $template['searchResult']['Chapter']['EndHTML'] .
+            $template['searchResult']['Chapter']['StartHTML'] .
+            eval("return \"" . $template['searchResult']['Chapter']['ProcessHTML'] . "\";") . $newLine;
+    }
+
+    return $newLine;
+}
+
+
+
+
 
 
 /**
