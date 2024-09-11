@@ -158,40 +158,56 @@ function createLinesFromDB($databaseInfo, $classGrepSearch)
 {
     global $limit, $start_span, $end_span, $bookset, $template, $version;
 
-    // Connect to the database
-    $con = connectToDB($databaseInfo);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
+    // Initialize HTML lines
+    $htmlLines = "";
+
+    try {
+        // Connect to the database
+        $con = connectToDB($databaseInfo);
+
+        // Check for connection errors
+        if ($con->connect_error) {
+            throw new Exception("Database connection failed.");
+        }
+
+        // Get search array
+        $searchArray = $classGrepSearch->getSearchArray();
+        if (empty($searchArray)) {
+            return $template['searchResult']['NoMatches']['StartHTML'] .
+                   $template['searchResult']['NoMatches']['EndHTML'];
+        }
+
+        // Generate SQL based on search type
+        $sql = generateSQLQuery($classGrepSearch, $searchArray, $limit, $start_span, $end_span, $bookset, $databaseInfo['databasetable']);
+
+        // Execute query
+        $result = $con->query($sql);
+
+        // Check if query execution failed
+        if (!$result) {
+            throw new Exception("Failed to execute query.");
+        }
+
+        // Process query result and build HTML lines
+        $htmlLines = buildHTMLFromResult($result, $classGrepSearch, $template, $version);
+
+        // Handle no results case
+        if (empty($htmlLines)) {
+            return $template['searchResult']['NoMatches']['StartHTML'] .
+                   $template['searchResult']['NoMatches']['EndHTML'];
+        }
+
+        // Close tags for the last chapter and book
+        $htmlLines .= $template['searchResult']['Chapter']['EndHTML'] .
+                      $template['searchResult']['Book']['EndHTML'];
+
+    } catch (Exception $e) {
+        // Log the actual error message for developers
+        error_log("Error in createLinesFromDB: " . $e->getMessage());
+
+        // Return a user-friendly message without exposing technical details
+        return "<p>We encountered an issue while processing your request. Please try again later.</p>";
     }
-
-    // Get search array
-    $searchArray = $classGrepSearch->getSearchArray();
-    if (empty($searchArray)) {
-        return $template['searchResult']['NoMatches']['StartHTML'] .
-               $template['searchResult']['NoMatches']['EndHTML'];
-    }
-
-    // Generate SQL based on search type
-    $sql = generateSQLQuery($classGrepSearch, $searchArray, $limit, $start_span, $end_span, $bookset, $databaseInfo['databasetable']);
-
-    // Execute query and handle result
-    $result = $con->query($sql);
-    if (!$result) {
-        die("Query failed: " . $con->error);
-    }
-
-    // Process query result and build HTML lines
-    $htmlLines = buildHTMLFromResult($result, $classGrepSearch, $template, $version);
-
-    // Handle no results case
-    if (empty($htmlLines)) {
-        return $template['searchResult']['NoMatches']['StartHTML'] .
-               $template['searchResult']['NoMatches']['EndHTML'];
-    }
-
-    // Close tags for the last chapter and book
-    $htmlLines .= $template['searchResult']['Chapter']['EndHTML'] .
-                  $template['searchResult']['Book']['EndHTML'];
 
     return $htmlLines;
 }
