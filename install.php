@@ -394,122 +394,105 @@
 
 
 		/**
+		 * Function to do a database based installation.
 		 *
-		 * function to do a database based installation
-		 *
-		 * @param $databaseInfo array
-		 * @param $bibleVersion string
-		 *
+		 * @param array $databaseInfo
+		 * @param string $bibleVersion
+		 * @return bool
 		 */
-
 		function installDB($databaseInfo, $bibleVersion)
 		{
 			global $message;
 			$noerror = true;
+
+			// Extract database connection details
 			$databasehost = $databaseInfo['databasehost'];
 			$databasename = $databaseInfo['databasename'];
 			$databasetableprefix = $databaseInfo['tableprefix'];
-			$databasetable = $databaseInfo['tableprefix'] . $bibleVersion;
+			$databasetable = $databasetableprefix . $bibleVersion;
 			$databaseusername = $databaseInfo['databaseusername'];
 			$databasepassword = $databaseInfo['databasepassword'];
-
 			$csvfile = "bibles/" . $bibleVersion . ".csv";
-			$con = mysqli_connect($databasehost, $databaseusername, $databasepassword);
+
+			// Establish a database connection
+			$con = mysqli_connect($databasehost, $databaseusername, $databasepassword, $databasename);
+
 			if (!$con) {
-				$message = "<font color=red>" . "Could not connect: " . mysqli_error() . "</font>";
-				$noerror = false;
-				return $noerror;
-			}
-			echo 'Connected successfully';
-			$noerror = mysqli_select_db($con, $databasename);
-			if (!$noerror) {
-				$message .= "<font color = red>";
-
-				$message .= "Can\'t use $databasename: " . mysqli_error();
-				$message .= "</font>";
-				return $noerror;
-			}
-			$sql = "DROP TABLE IF EXISTS " . $databasetable . " ;";
-			$result = mysqli_query($con, $sql);
-			if (!$result) {
-				$message .= "<font color = red>";
-				$message .= "Invalid query1: " . mysqli_error();
-				$message .= "</font>";
-				$noerror = false;
-				return $noerror;
+				$message = "<font color='red'>Could not connect: " . mysqli_connect_error() . "</font>";
+				return false;
 			}
 
-			$sql = "CREATE TABLE " . $databasetable . "
-	(
-		BOOKID int,
-		CHAPTERNO int,
-		VERSENO  int,
-		VERSETEXT longtext
-		);";
-			$result = mysqli_query($con, $sql);
-			if (!$result) {
-				$message .= "<font color = red>";
-				$message .= "Invalid query2: " . mysqli_error();
-				$message .= "</font>";
-				$noerror = false;
-				return $noerror;
-			} else {
-				echo "$databasetable table created";
+			// Drop table if it exists
+			$sql = "DROP TABLE IF EXISTS $databasetable";
+			if (!mysqli_query($con, $sql)) {
+				$message = "<font color='red'>Invalid query1: " . mysqli_error($con) . "</font>";
+				mysqli_close($con);
+				return false;
 			}
+
+			// Create new table
+			$sql = "CREATE TABLE $databasetable (
+        BOOKID INT,
+        CHAPTERNO INT,
+        VERSENO INT,
+        VERSETEXT LONGTEXT
+    )";
+			if (!mysqli_query($con, $sql)) {
+				$message = "<font color='red'>Invalid query2: " . mysqli_error($con) . "</font>";
+				mysqli_close($con);
+				return false;
+			}
+			echo "$databasetable table created";
+
+			// Check if CSV file exists
 			if (!file_exists($csvfile)) {
-				$message .= "<font color = red>";
-				$message .= " $bibleVersion Bible File not found. Make sure you specified the correct path.\n";
-				$message .= "</font>";
-				$noerror = false;
-				return $noerror;
-			} else {
-				echo "$bibleVersion Bible file found";
-
-				$file = fopen($csvfile, "r");
-
-				if (!$file) {
-					$message .= "<font color = red>";
-					$message .= "Error opening $csvfile data file.\n";
-					$message .= "</font>";
-					$noerror = false;
-					return $noerror;
-				}
-
-				$size = filesize($csvfile);
-
-				if (!$size) {
-					$message .= "<font color = red>";
-					$message .= "$csvfile is empty.\n";
-					$message .= "</font>";
-					$noerror = false;
-					return $noerror;
-				}
-
-
-				$lines = 0;
-				$queries = "";
-				$linearray = array();
-				while ($data = fgetcsv($file, 4000, ',')) {
-					$lines++;
-					if ($lines <= 2) {
-						continue;
-					}
-					$data[4] = addslashes($data[4]);
-					$linemysql = "$data[0],$data[2],$data[3],'$data[4]'";
-					$query = "insert into $databasetable values($linemysql)";
-					$result = mysqli_query($con, $query);
-					if (!$result) {
-						$message .= "<font color = red>";
-						$message .= "Invalid query3: " . mysqli_error();
-						$message .= "</font>";
-						$noerror = false;
-						return $noerror;
-					}
-				}
-				@mysqli_close($con);
-				echo "Found a total of $lines records in this $bibleVersion csv file.\n";
-				return $noerror;
+				$message = "<font color='red'> $bibleVersion Bible File not found. Make sure you specified the correct path.</font>";
+				mysqli_close($con);
+				return false;
 			}
+			echo "$bibleVersion Bible file found";
+
+			// Open the CSV file
+			if (($file = fopen($csvfile, "r")) === false) {
+				$message = "<font color='red'>Error opening $csvfile data file.</font>";
+				mysqli_close($con);
+				return false;
+			}
+
+			// Read CSV data and insert into database
+			$lines = 0;
+			$stmt = mysqli_prepare($con, "INSERT INTO $databasetable (BOOKID, CHAPTERNO, VERSENO, VERSETEXT) VALUES (?, ?, ?, ?)");
+
+			if ($stmt === false) {
+				$message = "<font color='red'>Prepare failed: " . mysqli_error($con) . "</font>";
+				fclose($file);
+				mysqli_close($con);
+				return false;
+			}
+
+			while (($data = fgetcsv($file, 4000, ',')) !== false) {
+				if (++$lines <= 2) {
+					continue; // Skip header lines
+				}
+
+				// Bind parameters and execute query
+				mysqli_stmt_bind_param($stmt, 'iiis', $data[0], $data[2], $data[3], $data[4]);
+				if (!mysqli_stmt_execute($stmt)) {
+					$message = "<font color='red'>Invalid query3: " . mysqli_error($con) . "</font>";
+					fclose($file);
+					mysqli_stmt_close($stmt);
+					mysqli_close($con);
+					return false;
+				}
+			}
+
+			fclose($file);
+			mysqli_stmt_close($stmt);
+			mysqli_close($con);
+
+			echo "Found a total of $lines records in this $bibleVersion csv file.";
+			return true;
 		}
+
 
 		?>

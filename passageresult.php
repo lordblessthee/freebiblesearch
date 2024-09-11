@@ -22,13 +22,19 @@ require_once('data/'.$installprefix.'config.inc.php');
 require_once('functions.php');
 $title="Passage Lookup Result";
 require_once('data/'.$installprefix.'header.inc.php');
-if(isset($_POST['bibleVersion'])) 
-{
-	    $versions = $_POST['bibleVersion'];
+
+// Check for bibleVersion in both GET and POST
+if (isset($_POST['bibleVersion'])) {
+    $versions = $_POST['bibleVersion'];
+} elseif (isset($_GET['bibleVersion'])) {
+    $versions = $_GET['bibleVersion'];
 }
 
-if(isset($_POST['lookup'])) {
+// Check for lookup string in both GET and POST
+if (isset($_POST['lookup'])) {
     $lookupString = stripslashes($_POST['lookup']);
+} elseif (isset($_GET['lookup'])) {
+    $lookupString = stripslashes($_GET['lookup']);
 }
 $diagnosticMessage="";
 if(!checkParameters())
