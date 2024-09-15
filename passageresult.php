@@ -105,15 +105,33 @@ echo $template['LookupResult']['EndHTML'];
 				$chapterText = $bookName . str_pad($parseInfo['startChap'], 3, "0", STR_PAD_LEFT) . ".txt";
 				$file_path = $scanDir . $bookName . "/" . $chapterText;
 				unset($fileContentsStruct);
-				$fileContentsStruct[] = array($parseInfo['startChap'], array_slice(file($file_path), $parseInfo['startVerse'] - 1));
-				for ($i = $parseInfo['startChap'] + 1; $i <= $parseInfo['endChap']; $i++) {
+				$verseTextArray = file($file_path);
+				$fileContentsStruct[] = array(
+					$parseInfo['startChap'],
+					array_slice($verseTextArray, $parseInfo['startVerse'] - 1, ($parseInfo['startChap'] == $parseInfo['endChap'])
+						? $parseInfo['endVerse'] - $parseInfo['startVerse'] + 1
+						: count($verseTextArray) - $parseInfo['startVerse'] + 1)
+				);
+
+				// Loop through intermediate chapters (if any)
+				for ($i = $parseInfo['startChap'] + 1; $i < $parseInfo['endChap']; $i++) {
 					$ChapterNo = $i;
 					$chapterText = $bookName . str_pad($i, 3, "0", STR_PAD_LEFT) . ".txt";
 					$file_path = $scanDir . $bookName . "/" . $chapterText;
-					$fileContents = array($ChapterNo, file($file_path));
-					$fileContentsStruct[] = $fileContents;
+					$verseTextArray = file($file_path);
+					$fileContentsStruct[] = array($ChapterNo, $verseTextArray);
 				}
-				$fileContentsStruct[count($fileContentsStruct) - 1][1] = array_slice($fileContentsStruct[count($fileContentsStruct) - 1][1], 0, (($parseInfo['endVerse'] + 1) - $parseInfo['startVerse']));
+
+				// Handling for the last chapter (endChap), only if it's different from startChap
+				if ($parseInfo['startChap'] != $parseInfo['endChap']) {
+					$chapterText = $bookName . str_pad($i, 3, "0", STR_PAD_LEFT) . ".txt";
+					$file_path = $scanDir . $bookName . "/" . $chapterText;
+					$verseTextArray = file($file_path);
+					$fileContentsStruct[] = array(
+						$parseInfo['endChap'],
+						array_slice($verseTextArray, 0, $parseInfo['endVerse'])  // Slice up to the endVerse
+					);
+				}
 				echo $currentTemplate['Book']['StartHTML'];
 				eval("echo \"" . $currentTemplate['Book']['ProcessHTML'] . "\";");
 				$txt = ''; // Initialize $txt to avoid "undefined variable" errors
