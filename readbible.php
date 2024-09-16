@@ -23,9 +23,23 @@ require_once('data/'.$installprefix.'template.inc.php');
 require_once('data/'.$installprefix.'config.inc.php');
 require_once('ClassGrepSearch.inc.php');
 require_once('functions.php');
+
+// Function to generate the dropdown
+function generateVersionDropdown($BibleVersion, $selectedVersion, $bookName, $ChapterNo) {
+    $dropdown = '<form method="GET" action="readbible.php">';
+    $dropdown .= '<input type="hidden" name="book" value="' . htmlspecialchars($bookName) . '">';
+    $dropdown .= '<input type="hidden" name="chapter" value="' . htmlspecialchars($ChapterNo) . '">';
+    $dropdown .= '<select name="version" onchange="this.form.submit()">';
+    foreach ($BibleVersion as $version) {
+        $selected = ($version["shortname"] == $selectedVersion) ? 'selected' : '';
+        $dropdown .= '<option value="' . $version["shortname"] . '" ' . $selected . '>' . $version["name"] . '</option>';
+    }
+    $dropdown .= '</select>';
+    $dropdown .= '</form>';
+    return $dropdown;
+}
+
 $classGrepSearch = ClassGrepSearch::getInstance();
-
-
 
 $verseTextArray =array();
 $txt = ''; // Initialize $txt to avoid "undefined variable" errors
@@ -185,6 +199,7 @@ else
 		echo $currentTemplate['BibleVersion']['StartHTML'];
 		eval("echo \"".$currentTemplate['BibleVersion']['ProcessHTML']."\";");
 		echo $currentTemplate['BibleVersion']['EndHTML'];
+		echo generateVersionDropdown($BibleVersion, $version, $bookName, $ChapterNo); // Add the dropdown here
 		echo $currentTemplate['Book']['StartHTML'];
 		if($showChapterLinks)
 		{
