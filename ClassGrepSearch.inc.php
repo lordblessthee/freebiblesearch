@@ -667,4 +667,4 @@ public function getSearchArray()
 
 }
 
-?> 
+?>
