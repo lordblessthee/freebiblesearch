@@ -106,6 +106,7 @@ echo $template['LookupResult']['EndHTML'];
 				$file_path = $scanDir . $bookName . "/" . $chapterText;
 				unset($fileContentsStruct);
 				$verseTextArray = file($file_path);
+				// Handling for the first chapter (startChap)
 				$fileContentsStruct[] = array(
 					$parseInfo['startChap'],
 					array_slice($verseTextArray, $parseInfo['startVerse'] - 1, ($parseInfo['startChap'] == $parseInfo['endChap'])
@@ -175,6 +176,7 @@ echo $template['LookupResult']['EndHTML'];
 				$databaseInfo['databasepassword'] = $dbPassword;
 				$databaseInfo['databasetable'] = $databaseInfo['tableprefix'] . $version;
 				$bookName =  $parseInfo['bookName'];
+				unset($fileContentsStruct);
 				// Handling for the first chapter (startChap)
 				$verseTextArray = getChaptersFromDB($databaseInfo, $bookName, $parseInfo['startChap']);
 				$fileContentsStruct[] = array(
